@@ -262,11 +262,14 @@ namespace fischertechnik {
     //% dauer.min=0 dauer.max=99 dauer.defl=1
     //% weight=100 group="Steuerung"
     export function warte(dauer: number, einheit: WarteEinheit): void {
-        // Auch beim Aufruf über TypeScript auf den zulässigen Bereich begrenzen.
-        if (isNaN(dauer)) dauer = 0
-        dauer = Math.max(0, Math.min(99, Math.round(dauer)))
-        let millisekunden = dauer * (einheit === WarteEinheit.Minuten ? 60000 : 1000)
-        basic.pause(millisekunden)
+        // Kein isNaN oder verschachteltes Math: nur die native MakeCode-Pause.
+        if (dauer < 0) dauer = 0
+        if (dauer > 99) dauer = 99
+        if (einheit === WarteEinheit.Minuten) {
+            basic.pause(dauer * 60000)
+        } else {
+            basic.pause(dauer * 1000)
+        }
     }
 
     /** Kalibriert eine der drei Lichtstufen auf einen eigenen Analogwert (0 bis 1023). */
