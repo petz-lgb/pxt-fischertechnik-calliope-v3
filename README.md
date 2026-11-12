@@ -2,7 +2,7 @@
 >
 > This extension was developed with the assistance of AI ("vibe coding"). Its source code has not yet been fully verified in the MakeCode online compiler or tested on physical hardware. **Please review and test it before using it in lessons.**
 
-# fischertechnik Calliope – MakeCode Extension (v0.1.3)
+# fischertechnik Calliope – MakeCode Extension (v0.1.4)
 
 A collection of child-friendly programming blocks for the **fischertechnik Calliope** construction kit, designed for **Calliope mini V3** in Microsoft MakeCode.
 
@@ -24,9 +24,22 @@ All product names and trademarks mentioned are used solely to describe compatibi
 | **Light barrier LED [P0] sensor [P2] is [BLOCKED/CLEAR] at [BRIGHT/MEDIUM/DIM]** | Boolean | Switches on the emitter LED and evaluates the phototransistor |
 | **Push button [P3] is [PRESSED/NOT PRESSED]** | Boolean | Reads a digital input with a pull-down resistor; the normally open switch connects 3 V to the pin when pressed |
 
-The **Settings** section also contains two calibration blocks: `Light level [..] threshold [..]` and `Light sensor pin [..] reading`.
+The **Sensors** group also contains two advanced calibration blocks: `Light level [..] threshold [..]` and `Light sensor pin [..] reading`.
 
-> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.3 implementation are in German.
+> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.4 implementation are in German.
+
+## Toolbox organization and color
+
+The extension uses a high-contrast **deep blue** (`#1456B8`) and four groups within the **fischertechnik** MakeCode category:
+
+| Group shown in MakeCode | Blocks |
+|---|---|
+| **Licht (LED)** | LED output |
+| **Motor** | Motor control |
+| **Eingabe** | Push button |
+| **Sensoren** | Light sensor, light barrier, light threshold calibration, and light-sensor reading |
+
+The two calibration blocks are marked as advanced and may be shown separately under the editor's advanced view. Group names and block labels remain in German for classroom use.
 
 ## Pin selection: what is actually available?
 
@@ -90,7 +103,7 @@ basic.forever(function () {
 })
 ```
 
-## LED crash troubleshooting (v0.1.3)
+## LED crash troubleshooting (v0.1.4)
 
 If the Calliope mini V3 resets when an LED block is used:
 
