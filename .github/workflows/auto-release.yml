@@ -1,0 +1,56 @@
+# Publish a MakeCode extension release whenever pxt.json version changes.
+# A matching tag (vMAJOR.MINOR.PATCH) lets MakeCode resolve the new version.
+name: Auto-release MakeCode extension
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - pxt.json
+      - .github/workflows/auto-release.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: makecode-release-main
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Tag and publish pxt.json version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Read and validate version
+        id: version
+        shell: bash
+        run: |
+          VERSION="$(node -p "require('./pxt.json').version")"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::pxt.json version must be MAJOR.MINOR.PATCH, got: $VERSION"
+            exit 1
+          fi
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub release if missing
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+        shell: bash
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists. Nothing to do."
+            exit 0
+          fi
+
+          # Never move or overwrite an existing version tag.
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --verify-tag --title "$TAG" --generate-notes
+          else
+            gh release create "$TAG" --target "$GITHUB_SHA" --title "$TAG" --generate-notes
+          fi
