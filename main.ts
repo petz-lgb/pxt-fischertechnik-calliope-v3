@@ -24,6 +24,18 @@ namespace fischertechnik {
         C9 = 5
     }
 
+    /** LED-Ausgänge an den vier großen programmierbaren Ringkontakten. */
+    export enum LEDAnschluss {
+        //% block="P0"
+        P0 = 0,
+        //% block="P1"
+        P1 = 1,
+        //% block="P2"
+        P2 = 2,
+        //% block="P3"
+        P3 = 3
+    }
+
     /** Auf dem Calliope V3 frei zugängliche analoge Sensoranschlüsse. */
     export enum SensorAnschluss {
         //% block="P1"
@@ -41,6 +53,7 @@ namespace fischertechnik {
         Wechseln = 2
     }
 
+    // Die sichtbaren Dropdown-Werte heißen ausschließlich M1 und M2.
     export enum MotorAnschluss {
         //% block="M1"
         M1 = 0,
@@ -94,7 +107,7 @@ namespace fischertechnik {
 
     // Anfangszustand der durch diese Erweiterung geschalteten LEDs = AUS.
     // Der Cache vermeidet, dass digitalReadPin den Ausgang umkonfiguriert.
-    let ledPegel = [0, 0, 0, 0, 0, 0]
+    let ledPegel = [0, 0, 0, 0]
     // Vorläufige Werte für fischertechnik-Fototransistor, vom Modell abhängig.
     // Übliche Beschaltung des Sets: hell = kleiner Rohwert, dunkel = größer.
     let grenzeStark = 12
@@ -138,16 +151,21 @@ namespace fischertechnik {
      * der mit dieser Erweiterung für denselben Pin geschrieben wurde.
      */
     //% blockId=ftcalliope_led
-    //% block="LED Pin $pin $zustand"
-    //% pin.defl=fischertechnik.Anschluss.P0
+    //% block="LED $pin $zustand"
+    //% pin.defl=fischertechnik.LEDAnschluss.P0
     //% weight=100 group="Aktoren"
-    export function led(pin: Anschluss, zustand: LEDZustand): void {
+    export function led(pin: LEDAnschluss, zustand: LEDZustand): void {
+        ledSchalten(pin, zustand)
+    }
+
+    // Die gemeinsame LED-Schaltlogik wird auch für die Lichtschranke genutzt.
+    function ledSchalten(pin: LEDAnschluss, zustand: LEDZustand): void {
         let i = pin as number
         let neu = 0
         if (zustand === LEDZustand.An) neu = 1
         else if (zustand === LEDZustand.Wechseln) neu = ledPegel[i] === 1 ? 0 : 1
         ledPegel[i] = neu
-        pins.digitalWritePin(digitalPin(pin), neu)
+        pins.digitalWritePin(digitalPin(pin as number as Anschluss), neu)
     }
 
     /**
@@ -184,14 +202,14 @@ namespace fischertechnik {
      */
     //% blockId=ftcalliope_lichtschranke
     //% block="Lichtschranke LED $ledPin Sensor $sensorPin ist $zustand bei $stufe"
-    //% ledPin.defl=fischertechnik.Anschluss.P0
+    //% ledPin.defl=fischertechnik.LEDAnschluss.P0
     //% sensorPin.defl=fischertechnik.SensorAnschluss.P2
     //% weight=70 group="Sensoren"
-    export function lichtschranke(ledPin: Anschluss, sensorPin: SensorAnschluss, zustand: LichtschrankenZustand, stufe: Helligkeit): boolean {
+    export function lichtschranke(ledPin: LEDAnschluss, sensorPin: SensorAnschluss, zustand: LichtschrankenZustand, stufe: Helligkeit): boolean {
         if ((ledPin as number) === (sensorPin as number)) return false
         // Nur beim erstmaligen Einschalten kurze Einschwingzeit.
         if (ledPegel[ledPin as number] !== 1) {
-            led(ledPin, LEDZustand.An)
+            ledSchalten(ledPin, LEDZustand.An)
             basic.pause(30)
         }
         let unterbrochen = lichtWert(sensorPin) > grenze(stufe)
