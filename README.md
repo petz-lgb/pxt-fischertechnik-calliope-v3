@@ -2,7 +2,7 @@
 >
 > This extension was developed with the assistance of AI ("vibe coding"). Its source code has not yet been fully verified in the MakeCode online compiler or tested on physical hardware. **Please review and test it before using it in lessons.**
 
-# fischertechnik Calliope – MakeCode Extension (v0.1.2)
+# fischertechnik Calliope – MakeCode Extension (v0.1.3)
 
 A collection of child-friendly programming blocks for the **fischertechnik Calliope** construction kit, designed for **Calliope mini V3** in Microsoft MakeCode.
 
@@ -26,7 +26,7 @@ All product names and trademarks mentioned are used solely to describe compatibi
 
 The **Settings** section also contains two calibration blocks: `Light level [..] threshold [..]` and `Light sensor pin [..] reading`.
 
-> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.2 implementation are in German.
+> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.3 implementation are in German.
 
 ## Pin selection: what is actually available?
 
@@ -89,6 +89,19 @@ basic.forever(function () {
     basic.pause(20)
 })
 ```
+
+## LED crash troubleshooting (v0.1.3)
+
+If the Calliope mini V3 resets when an LED block is used:
+
+1. Disconnect all external components. Create a new MakeCode project **without this extension** and test `pins.digitalWritePin(DigitalPin.P0, 1)` from the regular Pins category.
+2. If this runs normally, inspect the LED's wiring, polarity, and current limiting before reconnecting it. A standard V3 GPIO pin should supply no more than about 5 mA.
+3. If the built-in Pins block also crashes when the LED is attached, an electrical issue is likely; do not keep retrying an unsafe circuit.
+4. If only this extension crashes, note the MakeCode project, selected pin, LED wiring, any displayed error code, and whether the mini restarts or disconnects during flashing.
+
+Version 0.1.3 replaces the LED state array with a single bitmask and selects P0–P3 explicitly. This is a **diagnostic simplification, not a confirmed fix**.
+
+References: [Calliope mini power limits](https://docs.calliope.cc/tech/hardware/stromversorgung/) · [Calliope error codes](https://docs.calliope.cc/tech/software/error/).
 
 ## Development and testing status
 
