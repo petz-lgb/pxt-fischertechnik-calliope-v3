@@ -221,8 +221,9 @@ namespace fischertechnik {
 
     /**
      * Externer fischertechnik-Taster als Bedingung.
-     * Verdrahtung: Schließer Kontakte 1+3 zwischen 3V und Signalpin.
-     * Ein interner Pull-down hält den geöffneten Eingang auf 0.
+     * Verdrahtung: Schließer Kontakte 1+3 zwischen GND und Signalpin.
+     * Ein interner Pull-up hält den offenen Eingang auf 1.
+     * Gedrückt zieht den Eingang auf 0 (aktiv LOW).
      */
     //% blockId=ftcalliope_taster
     //% block="Taster $pin ist $zustand"
@@ -235,10 +236,10 @@ namespace fischertechnik {
         if (index < 0 || index > 3) return false
         let maske = 1 << index
         if ((tasterInitialisiert & maske) === 0) {
-            if (pin === Anschluss.P0) pins.setPull(DigitalPin.P0, PinPullMode.PullDown)
-            else if (pin === Anschluss.P1) pins.setPull(DigitalPin.P1, PinPullMode.PullDown)
-            else if (pin === Anschluss.P2) pins.setPull(DigitalPin.P2, PinPullMode.PullDown)
-            else if (pin === Anschluss.P3) pins.setPull(DigitalPin.P3, PinPullMode.PullDown)
+            if (pin === Anschluss.P0) pins.setPull(DigitalPin.P0, PinPullMode.PullUp)
+            else if (pin === Anschluss.P1) pins.setPull(DigitalPin.P1, PinPullMode.PullUp)
+            else if (pin === Anschluss.P2) pins.setPull(DigitalPin.P2, PinPullMode.PullUp)
+            else if (pin === Anschluss.P3) pins.setPull(DigitalPin.P3, PinPullMode.PullUp)
             tasterInitialisiert |= maske
         }
 
@@ -247,7 +248,8 @@ namespace fischertechnik {
         else if (pin === Anschluss.P1) pegel = pins.digitalReadPin(DigitalPin.P1)
         else if (pin === Anschluss.P2) pegel = pins.digitalReadPin(DigitalPin.P2)
         else if (pin === Anschluss.P3) pegel = pins.digitalReadPin(DigitalPin.P3)
-        let gedrueckt = pegel === 1
+        // Schliesser nach GND: 0 = gedrueckt, 1 = nicht gedrueckt.
+        let gedrueckt = pegel === 0
         return zustand === TasterZustand.Gedrueckt ? gedrueckt : !gedrueckt
     }
 
