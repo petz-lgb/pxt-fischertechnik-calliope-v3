@@ -2,7 +2,7 @@
 >
 > This extension was developed with the assistance of AI ("vibe coding"). Its source code has not yet been fully verified in the MakeCode online compiler or tested on physical hardware. **Please review and test it before using it in lessons.**
 
-# fischertechnik Calliope – MakeCode Extension (v0.1.20)
+# fischertechnik Calliope – MakeCode Extension (v0.1.21)
 
 A collection of child-friendly programming blocks for the **fischertechnik Calliope** construction kit, designed for **Calliope mini V3** in Microsoft MakeCode.
 
@@ -21,8 +21,8 @@ All product names and trademarks mentioned are used solely to describe compatibi
 | **LED [P0] [ON/OFF/TOGGLE]** | Command | Sets the output to digital 1 or 0, or toggles the last state written by this extension |
 | **Motor [M1/M2] turns [↶ LEFT/↷ RIGHT] at [TURBO/FAST/MEDIUM/SLOW]** | Command | Controls the Calliope motor drivers at 100/75/50/25%; block M1 corresponds to physical M0, block M2 to physical M1 |
 | **Stop motor [M1/M2]** | Command | Stops the selected motor by setting its power to 0% |
-| **Light sensor pin [P1/P2] detects at least [BRIGHT/MEDIUM/DIM]** | Boolean | Checks whether the analog reading meets the selected light threshold |
-| **Brightness light sensor [P1/P2]** | Number | Returns the phototransistor's raw measurement (0–1023), suitable for storage in a MakeCode variable; lower numbers indicate more light with the intended wiring |
+| **Light sensor pin [P0/P1/P2/P3] detects at least [BRIGHT/MEDIUM/DIM]** | Boolean | Checks the sensor reading against a brightness threshold; P0–P2 analog, P3 digital only |
+| **Brightness light sensor [P0/P1/P2/P3]** | Number | Returns a measurement: analog 0–1023 on P0–P2; digital 0 or 1023 on P3 |
 | **Start light barrier, LED on [P0/P1/P2/P3]** | Command | Explicitly switches the selected light-barrier emitter LED on |
 | **Light barrier sensor [P2] is [BLOCKED/CLEAR]** | Boolean | Checks the phototransistor with an internal fixed threshold of 800; the emitter LED must be started separately |
 | **Push button [P3] is [PRESSED/NOT PRESSED/TAPPED]** | Boolean | Reads a digital input with an internal pull-up; a 30–1000 ms press followed by release is reported once as TAPPED |
@@ -31,7 +31,7 @@ All product names and trademarks mentioned are used solely to describe compatibi
 
 The **Sensoren** group contains the regular numeric light-sensor block and one advanced calibration block: `Light level [..] threshold [..]`.
 
-> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.20 implementation are in German.
+> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.21 implementation are in German.
 
 ## Extension gallery icon
 
@@ -59,7 +59,7 @@ Dropdowns now use **lowercase German words**, such as `an`, `aus`, `wechseln`, `
 
 The toolbox now has a dedicated **Lichtschranke** group. The first block is **`Lichtschranke starten, LED auf [P0]`**, which explicitly switches on the selected emitter LED on P0, P1, P2, or P3.
 
-The next block is a compact, horizontal, Boolean check: **`Lichtschranke Sensor [P2] ist [unterbrochen/frei]`**. It uses `inlineInputMode=inline`, offers P1 or P2 as analog receiver inputs, and exposes only the two desired states (`unterbrochen`, `frei`).
+The next block is a compact, horizontal, Boolean check: **`Lichtschranke Sensor [P2] ist [unterbrochen/frei]`**. It uses `inlineInputMode=inline`, offers P0, P1, P2 as analog receiver inputs plus P3 as a digital-only receiver, and exposes only the two desired states (`unterbrochen`, `frei`).
 
 The light-barrier check **does not turn on the LED**. It reads the phototransistor only, so call the LED startup block first (e.g. in `beim Start`). It compares the analog value with a **fixed internal threshold of 800** (midway between the reported free value 562 and interrupted value 1022). This threshold is not linked to the light-sensor brightness dropdown or its adjustable `Lichtstufe` calibration.
 
@@ -88,7 +88,7 @@ The **Logik** group contains a C-shaped block with a statement body:
 
 **`bis [Taster P3 gedrückt] [wahr] mache`**
 
-Select a condition from the first dropdown (pressed/tapped Taster on P0–P3, or interrupted light barrier on P1/P2), and select `wahr` or `falsch` in the second dropdown. The commands nested in the block run repeatedly **until the selected sensor condition equals the desired Boolean value**. The condition is checked **before** each iteration, so if it is already satisfied, the body does not run. A 1 ms pause between iterations lets the microcontroller run other fibers.
+Select a condition from the first dropdown (pressed/tapped Taster on P0–P3, or interrupted light barrier on P0–P3), and select `wahr` or `falsch` in the second dropdown. The commands nested in the block run repeatedly **until the selected sensor condition equals the desired Boolean value**. The condition is checked **before** each iteration, so if it is already satisfied, the body does not run. A 1 ms pause between iterations lets the microcontroller run other fibers.
 
 **Critical MakeCode limitation:** This custom extension **cannot** provide a general-purpose Boolean expression socket that automatically reevaluates arbitrary attached expressions each loop. In ordinary extension functions, `condition: boolean` is evaluated once on entry and passed by value; a loop based on this parameter would not react to a changing sensor. For correctness, this block uses a **dropdown of supported sensor conditions**, which the extension explicitly re-reads on each iteration. Use the built-in **`während`** block with an inverted condition for arbitrary complex expressions. A completely general `bis [any Boolean block] [wahr|falsch] mache` requires editor/compiler support, not just a normal GitHub extension.
 
@@ -109,19 +109,35 @@ The previous v0.1.7–v0.1.8 implementation used `isNaN()` and nested Math helpe
 
 **Isolation test:** Run a new project without any external wiring, containing only the fischertechnik wait block set to 1 second between built-in LED display actions; then try a 1-minute delay. If it still crashes, replace only this block with the standard MakeCode `basic.pause(1000)` and compare. Record any panic/error number shown on the LED matrix; do not assume the underlying cause is fixed until verified on physical hardware.
 
+## Sensor pin selection and motor-stop behavior (v0.1.21)
+
+All sensor dropdowns now offer P0, P1, P2 and P3 (digital), including the light-sensor Boolean block, numeric light-sensor reporter, light-barrier check and supported light-barrier conditions in the `bis` loop. On V3, P3 cannot measure analog values; see the hardware notes below. Do not use the same pin simultaneously for the light-barrier LED, the phototransistor and/or an external push button.
+
+**Motor warning:** The `bis` loop only controls how often its contained statements are executed; it does not reverse previous output settings. `Motor M2 dreht ...` sets a persistent motor power. To stop the motor on button P2 press, use:
+
+```text
+dauerhaft
+  wenn Lichtschranke Sensor P1 ist unterbrochen dann
+    bis Taster P2 gedrückt wahr mache
+      Motor M2 dreht rechts mit langsam
+    Motor stoppen M2
+```
+
+The `Motor stoppen M2` block belongs **below the `bis` loop but inside the `wenn` block**. Once the `bis` condition is satisfied, control proceeds to the stop command. A shared pin cannot be used for the light barrier and push button simultaneously.
+
 ## Pin selection: what is actually available?
 
 The Calliope mini has **six large contact pads**, but two of them are **+3 V** and **GND**, not programmable inputs/outputs. The other four are digital signals **P0, P1, P2, and P3**.
 
 The LED, push-button, and light-barrier LED-emitter selections all offer only **P0–P3**. The header pins C8 and C9 are not available in these dropdowns.
 
-For the analog fischertechnik phototransistor, **P1 and P2** are the practical choices among the large contact pads on Calliope mini V3. Other analog channels are used for different purposes. The light-sensor dropdown is deliberately limited to P1 and P2.
+On Calliope mini V3 the large contact pads **P0, P1 and P2** support real ADC analog readings. **P3 does not support analog input** on V3; this extension deliberately provides a *digital-only* fallback there, mapping LOW to 0 and HIGH to 1023. The P3 dropdown explicitly says `P3 (digital)` to avoid suggesting it measures proportional light intensity. Use P0, P1 or P2 for real brightness readings or calibrated light-barrier thresholds.
 
 ## Wiring and operation
 
 - **LED:** Connect between the selected signal pin and GND, observing polarity. `ON` sets the output HIGH. Use the LED components provided with the fischertechnik set; do not connect an unprotected bare LED without an appropriate series resistor.
 - **Motor:** Connect to **M0+/M0−** (block option M1) or **M1+/M1−** (block option M2). The directional arrows refer to electrical rotation direction. Actual visible rotation depends on polarity and viewing angle.
-- **Phototransistor:** Connect to an analog input (P1 or P2) using the wiring specified for the fischertechnik set. The extension enables a pull-up resistor; with this arrangement, **lower raw readings mean more light**.
+- **Phototransistor:** Connect to an analog input (P0, P1 or P2) for numerical brightness readings, or to P3 only when binary light/dark detection is acceptable, using the wiring specified for the fischertechnik set. The extension enables a pull-up resistor; with this arrangement, **lower raw readings mean more light**.
 - **Push button (v0.1.9):** Use the normally open contacts **1 and 3** between **GND and the selected signal pin**. The extension enables the internal pull-up resistor: unpressed reads **1**, pressed reads **0**. Do **not** wire the button between 3.3 V and the input for this version; it will not detect a press.
 - **Light barrier:** Use **different pins** for the emitter LED and phototransistor. Switch on the LED explicitly using `Lichtschranke starten`; the new condition block only reads the receiver. Turn off the LED with the normal LED block `aus`. The legacy condition block still turns its emitter on automatically.
 
@@ -168,9 +184,9 @@ This is a diagnostic change based on standard Calliope pin-input behavior. The p
 
 ## Numeric light-sensor block (v0.1.16)
 
-The **Sensoren** group now visibly includes **`Helligkeit Lichtsensor [P2]`**. Select **P1** or **P2**; it returns a numeric value instead of a true/false condition. For example, create a MakeCode variable named `Helligkeit` and use the standard variable-assignment block **`setze Helligkeit auf [Helligkeit Lichtsensor P2]`**.
+The **Sensoren** group now visibly includes **`Helligkeit Lichtsensor [P2]`**. Select **P0**, **P1**, **P2**, or **P3 (digital)**; it returns a numeric value instead of a true/false condition. For example, create a MakeCode variable named `Helligkeit` and use the standard variable-assignment block **`setze Helligkeit auf [Helligkeit Lichtsensor P2]`**.
 
-The block returns the existing raw analog reading from `pins.analogReadPin()` (nominal scale **0–1023**), not a calibrated brightness in lux. With the intended phototransistor wiring and pull-up, **smaller readings correspond to brighter light**. The existing TypeScript API and block ID are unchanged, so projects using the previously hidden numeric block remain compatible.
+For P0–P2, the block returns a raw analog reading from `pins.analogReadPin()` (nominal scale **0–1023**), not a calibrated brightness in lux. At P3 the block reads a digital input and returns **0 or 1023 only**, not an analog value. With the intended phototransistor wiring and pull-up, **smaller readings correspond to brighter light**. The existing TypeScript API and block ID are unchanged, so projects using the previously hidden numeric block remain compatible.
 
 ## Light thresholds and calibration
 
