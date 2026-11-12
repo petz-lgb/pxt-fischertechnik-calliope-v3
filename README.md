@@ -2,7 +2,7 @@
 >
 > This extension was developed with the assistance of AI ("vibe coding"). Its source code has not yet been fully verified in the MakeCode online compiler or tested on physical hardware. **Please review and test it before using it in lessons.**
 
-# fischertechnik Calliope – MakeCode Extension (v0.1.17)
+# fischertechnik Calliope – MakeCode Extension (v0.1.18)
 
 A collection of child-friendly programming blocks for the **fischertechnik Calliope** construction kit, designed for **Calliope mini V3** in Microsoft MakeCode.
 
@@ -23,13 +23,13 @@ All product names and trademarks mentioned are used solely to describe compatibi
 | **Light sensor pin [P1/P2] detects at least [BRIGHT/MEDIUM/DIM]** | Boolean | Checks whether the analog reading meets the selected light threshold |
 | **Brightness light sensor [P1/P2]** | Number | Returns the phototransistor's raw measurement (0–1023), suitable for storage in a MakeCode variable; lower numbers indicate more light with the intended wiring |
 | **Start light barrier, LED on [P0/P1/P2/P3]** | Command | Explicitly switches the selected light-barrier emitter LED on |
-| **Light barrier sensor [P2] is [BLOCKED/CLEAR]** | Boolean | Checks the phototransistor with an internal fixed threshold of 25; the emitter LED must be started separately |
+| **Light barrier sensor [P2] is [BLOCKED/CLEAR]** | Boolean | Checks the phototransistor with an internal fixed threshold of 800; the emitter LED must be started separately |
 | **Push button [P3] is [PRESSED/NOT PRESSED/TAPPED]** | Boolean | Reads a digital input with an internal pull-up; a 30–1000 ms press followed by release is reported once as TAPPED |
 | **wait [1] [Seconds/Minutes]** | Command | Pauses the current program for 0–99 whole seconds or minutes |
 
 The **Sensoren** group contains the regular numeric light-sensor block and one advanced calibration block: `Light level [..] threshold [..]`.
 
-> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.17 implementation are in German.
+> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.18 implementation are in German.
 
 ## Extension gallery icon
 
@@ -58,11 +58,20 @@ The toolbox now has a dedicated **Lichtschranke** group. The first block is **`L
 
 The next block is a compact, horizontal, Boolean check: **`Lichtschranke Sensor [P2] ist [unterbrochen/frei]`**. It uses `inlineInputMode=inline`, offers P1 or P2 as analog receiver inputs, and exposes only the two desired states (`unterbrochen`, `frei`).
 
-The light-barrier check **does not turn on the LED**. It reads the phototransistor only, so call the LED startup block first (e.g. in `beim Start`). It compares the analog value with a **fixed internal threshold of 25** (the requested value for this setup). This threshold is not linked to the light-sensor brightness dropdown or its adjustable `Lichtstufe` calibration.
+The light-barrier check **does not turn on the LED**. It reads the phototransistor only, so call the LED startup block first (e.g. in `beim Start`). It compares the analog value with a **fixed internal threshold of 800** (midway between the reported free value 562 and interrupted value 1022). This threshold is not linked to the light-sensor brightness dropdown or its adjustable `Lichtstufe` calibration.
 
 The former four-argument light-barrier block has been **deprecated**, not deleted. Existing MakeCode programs using the old block should continue to work; it retains its original auto-on LED behavior and brightness-level dropdown. Newly created programs should use the two new-style blocks above.
 
 Never use the same pin for the sender LED and receiver sensor, and follow electrical wiring requirements for the chosen components. Test the fixed threshold on the actual phototransistor and illumination setup before classroom use.
+
+### Light-barrier threshold corrected using measured values (v0.1.18)
+
+Actual analog readings reported for the connected fischertechnik phototransistor are **562 when free** and **1022 when interrupted**. The previous fixed threshold of 25 was far below both readings, so the barrier would always appear interrupted. Version 0.1.18 raises the fixed threshold used by the newer `Lichtschranke Sensor [P2] ist [unterbrochen/frei]` block to **800**:
+
+- Reading **0–800**: **free**.
+- Reading **801–1023**: **interrupted**.
+
+The comparison direction (`reading > threshold` means interrupted) remains correct. This threshold is based on the reported measurements and may need adjustment under different lighting conditions or wiring. The ordinary light-sensor thresholds and deprecated legacy block remain unchanged.
 
 ### Light-barrier fixed threshold adjustment (v0.1.17)
 
