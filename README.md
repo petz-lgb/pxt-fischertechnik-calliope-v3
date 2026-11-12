@@ -103,7 +103,7 @@ basic.forever(function () {
 })
 ```
 
-## LED crash troubleshooting (v0.1.4)
+## LED crash troubleshooting (v0.1.3)
 
 If the Calliope mini V3 resets when an LED block is used:
 
