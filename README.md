@@ -2,7 +2,7 @@
 >
 > This extension was developed with the assistance of AI ("vibe coding"). Its source code has not yet been fully verified in the MakeCode online compiler or tested on physical hardware. **Please review and test it before using it in lessons.**
 
-# fischertechnik Calliope – MakeCode Extension (v0.1.4)
+# fischertechnik Calliope – MakeCode Extension (v0.1.5)
 
 A collection of child-friendly programming blocks for the **fischertechnik Calliope** construction kit, designed for **Calliope mini V3** in Microsoft MakeCode.
 
@@ -26,7 +26,7 @@ All product names and trademarks mentioned are used solely to describe compatibi
 
 The **Sensors** group also contains two advanced calibration blocks: `Light level [..] threshold [..]` and `Light sensor pin [..] reading`.
 
-> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.4 implementation are in German.
+> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.5 implementation are in German.
 
 ## Toolbox organization and color
 
@@ -40,6 +40,8 @@ The extension uses a high-contrast **deep blue** (`#1456B8`) and four groups wit
 | **Sensoren** | Light sensor, light barrier, light threshold calibration, and light-sensor reading |
 
 The two calibration blocks are marked as advanced and may be shown separately under the editor's advanced view. Group names and block labels remain in German for classroom use.
+
+Dropdowns now use **lowercase German words**, such as `an`, `aus`, `wechseln`, `links`, `rechts`, `turbo`, `gedrückt`, and `nicht gedrückt`. Hardware identifiers such as `P0`, `P1`, `M1`, and `M2` remain unchanged. This is a display-only change; TypeScript enum identifiers and behavior are preserved.
 
 ## Pin selection: what is actually available?
 
