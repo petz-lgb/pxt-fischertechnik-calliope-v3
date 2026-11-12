@@ -2,7 +2,7 @@
 >
 > This extension was developed with the assistance of AI ("vibe coding"). Its source code has not yet been fully verified in the MakeCode online compiler or tested on physical hardware. **Please review and test it before using it in lessons.**
 
-# fischertechnik Calliope – MakeCode Extension (v0.1.18)
+# fischertechnik Calliope – MakeCode Extension (v0.1.19)
 
 A collection of child-friendly programming blocks for the **fischertechnik Calliope** construction kit, designed for **Calliope mini V3** in Microsoft MakeCode.
 
@@ -19,7 +19,8 @@ All product names and trademarks mentioned are used solely to describe compatibi
 | Block | Type | Function |
 |---|---|---|
 | **LED [P0] [ON/OFF/TOGGLE]** | Command | Sets the output to digital 1 or 0, or toggles the last state written by this extension |
-| **Motor [M1/M2] turns [↶ LEFT/↷ RIGHT] at [TURBO/FAST/MEDIUM/SLOW/STOP]** | Command | Controls the Calliope motor drivers at 100/75/50/25/0%; block M1 corresponds to physical M0, block M2 to physical M1 |
+| **Motor [M1/M2] turns [↶ LEFT/↷ RIGHT] at [TURBO/FAST/MEDIUM/SLOW]** | Command | Controls the Calliope motor drivers at 100/75/50/25%; block M1 corresponds to physical M0, block M2 to physical M1 |
+| **Stop motor [M1/M2]** | Command | Stops the selected motor by setting its power to 0% |
 | **Light sensor pin [P1/P2] detects at least [BRIGHT/MEDIUM/DIM]** | Boolean | Checks whether the analog reading meets the selected light threshold |
 | **Brightness light sensor [P1/P2]** | Number | Returns the phototransistor's raw measurement (0–1023), suitable for storage in a MakeCode variable; lower numbers indicate more light with the intended wiring |
 | **Start light barrier, LED on [P0/P1/P2/P3]** | Command | Explicitly switches the selected light-barrier emitter LED on |
@@ -29,7 +30,7 @@ All product names and trademarks mentioned are used solely to describe compatibi
 
 The **Sensoren** group contains the regular numeric light-sensor block and one advanced calibration block: `Light level [..] threshold [..]`.
 
-> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.18 implementation are in German.
+> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.19 implementation are in German.
 
 ## Extension gallery icon
 
@@ -42,7 +43,7 @@ The extension uses a high-contrast **deep blue** (`#1456B8`) and six groups with
 | Group shown in MakeCode | Blocks |
 |---|---|
 | **Licht (LED)** | LED output |
-| **Motor** | Motor control |
+| **Motor** | Motor control, then separate motor stop command |
 | **Eingabe** | Push button |
 | **Sensoren** | Light-sensor condition, visible numerical brightness measurement, and advanced light-threshold calibration |
 | **Lichtschranke** | Start emitter LED (first), check light barrier (second) |
@@ -170,6 +171,15 @@ Threshold logic:
 - Brightness condition is true when `analog reading <= threshold`.
 - A light barrier is considered blocked when `analog reading > threshold`.
 - Higher thresholds make the sensor respond to weaker light.
+
+## Dedicated motor stop block (v0.1.19)
+
+The **Motor** toolbox group now shows two blocks, in order:
+
+1. **`Motor [M1] dreht [↶ links] mit [turbo/schnell/mittel/langsam]`** — the speed dropdown no longer offers **stop**.
+2. **`Motor stoppen [M1]`** — selects M1 or M2 and immediately sets the selected hardware motor driver power to **0%**.
+
+The former `Geschwindigkeit.Stop = 0` enum member is kept only for backwards compatibility with projects written using an earlier version, but is marked `blockHidden=1` to remove it from the speed dropdown. The existing `motor` API and its original block ID remain unchanged, and older programs using the stop enum continue to stop the motor. Both blocks preserve the M1→hardware M0 and M2→hardware M1 mapping.
 
 ## Motors and hardware version
 
