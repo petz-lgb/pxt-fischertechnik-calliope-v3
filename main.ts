@@ -206,7 +206,7 @@ namespace fischertechnik {
     //% blockId=ftcalliope_led
     //% block="LED $pin $zustand"
     //% pin.defl=fischertechnik.LEDAnschluss.P0
-    //% weight=100 group="Licht (LED)"
+    //% weight=100 group="Licht (LED)" color="#B68400"
     export function led(pin: LEDAnschluss, zustand: LEDZustand): void {
         ledSchalten(pin, zustand)
     }
@@ -239,7 +239,7 @@ namespace fischertechnik {
     //% blockId=ftcalliope_motor
     //% block="Motor $kanal dreht $richtung mit $tempo"
     //% kanal.defl=fischertechnik.MotorAnschluss.M1
-    //% weight=90 group="Motor"
+    //% weight=90 group="Motor" color="#D56722"
     export function motor(kanal: MotorAnschluss, richtung: Drehrichtung, tempo: Geschwindigkeit): void {
         let leistung = (tempo as number) * (richtung as number)
         if (tempo === Geschwindigkeit.Stop) leistung = 0
@@ -253,7 +253,7 @@ namespace fischertechnik {
     //% blockId=ftcalliope_motor_stoppen
     //% block="Motor stoppen $kanal"
     //% kanal.defl=fischertechnik.MotorAnschluss.M1
-    //% weight=80 group="Motor"
+    //% weight=80 group="Motor" color="#D56722"
     export function motorStoppen(kanal: MotorAnschluss): void {
         motors.dualMotorPower(kanal === MotorAnschluss.M1 ? Motor.M0 : Motor.M1, 0)
     }
@@ -265,7 +265,7 @@ namespace fischertechnik {
     //% blockId=ftcalliope_lichtsensor
     //% block="Lichtsensor Pin $pin ist mindestens $stufe beleuchtet"
     //% pin.defl=fischertechnik.SensorAnschluss.P2
-    //% weight=80 group="Sensoren"
+    //% weight=80 group="Sensoren" color="#24804C"
     export function lichtsensor(pin: SensorAnschluss, stufe: Helligkeit): boolean {
         return lichtWert(pin) <= grenze(stufe)
     }
@@ -277,7 +277,7 @@ namespace fischertechnik {
     //% blockId=ftcalliope_lichtschranke_starten
     //% block="Lichtschranke starten, LED auf $ledPin"
     //% ledPin.defl=fischertechnik.LEDAnschluss.P0
-    //% weight=100 group="Lichtschranke"
+    //% weight=100 group="Lichtschranke" color="#00876C"
     export function lichtschrankeStarten(ledPin: LEDAnschluss): void {
         ledSchalten(ledPin, LEDZustand.An)
     }
@@ -291,7 +291,7 @@ namespace fischertechnik {
     //% block="Lichtschranke Sensor $sensorPin ist $zustand"
     //% sensorPin.defl=fischertechnik.SensorAnschluss.P2
     //% inlineInputMode=inline
-    //% weight=90 group="Lichtschranke"
+    //% weight=90 group="Lichtschranke" color="#00876C"
     export function lichtschrankePruefen(sensorPin: SensorAnschluss, zustand: LichtschrankenZustand): boolean {
         let unterbrochen = lichtWert(sensorPin) > 800
         return zustand === LichtschrankenZustand.Unterbrochen ? unterbrochen : !unterbrochen
@@ -306,7 +306,7 @@ namespace fischertechnik {
     //% ledPin.defl=fischertechnik.LEDAnschluss.P0
     //% sensorPin.defl=fischertechnik.SensorAnschluss.P2
     //% deprecated=true
-    //% weight=70 group="Lichtschranke"
+    //% weight=70 group="Lichtschranke" color="#00876C"
     export function lichtschranke(ledPin: LEDAnschluss, sensorPin: SensorAnschluss, zustand: LichtschrankenZustand, stufe: Helligkeit): boolean {
         if ((ledPin as number) === (sensorPin as number)) return false
         if ((ledZustaende & (1 << (ledPin as number))) === 0) {
@@ -382,7 +382,7 @@ namespace fischertechnik {
     //% blockId=ftcalliope_taster
     //% block="Taster $pin ist $zustand"
     //% pin.defl=fischertechnik.Anschluss.P3
-    //% weight=60 group="Eingabe"
+    //% weight=60 group="Eingabe" color="#B83D88"
     export function taster(pin: Anschluss, zustand: TasterZustand): boolean {
         let index = pin as number
         if (index < 0 || index > 3) return false
@@ -414,7 +414,7 @@ namespace fischertechnik {
     //% blockId=ftcalliope_warte
     //% block="warte $dauer $einheit"
     //% dauer.min=0 dauer.max=99 dauer.defl=1
-    //% weight=100 group="Steuerung"
+    //% weight=100 group="Steuerung" color="#6054AE"
     export function warte(dauer: number, einheit: WarteEinheit): void {
         // Kein isNaN oder verschachteltes Math: nur die native MakeCode-Pause.
         if (dauer < 0) dauer = 0
@@ -459,7 +459,7 @@ namespace fischertechnik {
     //% bedingung.defl=fischertechnik.BisBedingung.TasterP3
     //% ziel.defl=fischertechnik.BisWahrheitswert.Wahr
     //% handlerStatement=1
-    //% weight=100 group="Logik"
+    //% weight=100 group="Logik" color="#087C93"
     export function bis(bedingung: BisBedingung, ziel: BisWahrheitswert, body: () => void): void {
         let zielWahr = ziel === BisWahrheitswert.Wahr
         while (bisBedingungPruefen(bedingung) !== zielWahr) {
@@ -473,7 +473,7 @@ namespace fischertechnik {
     //% blockId=ftcalliope_grenze
     //% block="Lichtstufe $stufe Grenzwert $wert"
     //% wert.min=0 wert.max=1023 wert.defl=22
-    //% weight=20 group="Sensoren" advanced=true
+    //% weight=20 group="Sensoren" advanced=true color="#24804C"
     export function lichtGrenze(stufe: Helligkeit, wert: number): void {
         wert = Math.max(0, Math.min(1023, Math.round(wert)))
         if (stufe === Helligkeit.Stark) grenzeStark = wert
@@ -489,7 +489,7 @@ namespace fischertechnik {
     //% blockId=ftcalliope_lichtwert
     //% block="Helligkeit Lichtsensor $pin"
     //% pin.defl=fischertechnik.SensorAnschluss.P2
-    //% weight=79 group="Sensoren"
+    //% weight=79 group="Sensoren" color="#24804C"
     export function lichtMesswert(pin: SensorAnschluss): number {
         return lichtWert(pin)
     }
