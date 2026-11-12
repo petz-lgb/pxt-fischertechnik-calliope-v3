@@ -377,11 +377,15 @@ namespace fischertechnik {
         else grenzeSchwach = wert
     }
 
-    /** Liefert den Fototransistor-Rohwert, z.B. zur Kalibrierung. */
+    /**
+     * Gibt den Helligkeits-Messwert des Fototransistors als Zahl zurueck.
+     * Bei der vorhandenen Schaltung gilt: je heller, desto kleiner der Wert.
+     * Als Zahlenblock z.B. in "setze Helligkeit auf ..." verwendbar.
+     */
     //% blockId=ftcalliope_lichtwert
-    //% block="Lichtsensor Pin $pin Messwert"
+    //% block="Lichtsensor $pin Helligkeit als Zahl"
     //% pin.defl=fischertechnik.SensorAnschluss.P2
-    //% weight=10 group="Sensoren" advanced=true
+    //% weight=79 group="Sensoren"
     export function lichtMesswert(pin: SensorAnschluss): number {
         return lichtWert(pin)
     }
