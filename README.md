@@ -2,7 +2,7 @@
 >
 > This extension was developed with the assistance of AI ("vibe coding"). Its source code has not yet been fully verified in the MakeCode online compiler or tested on physical hardware. **Please review and test it before using it in lessons.**
 
-# fischertechnik Calliope – MakeCode Extension (v0.1.15)
+# fischertechnik Calliope – MakeCode Extension (v0.1.16)
 
 A collection of child-friendly programming blocks for the **fischertechnik Calliope** construction kit, designed for **Calliope mini V3** in Microsoft MakeCode.
 
@@ -21,7 +21,7 @@ All product names and trademarks mentioned are used solely to describe compatibi
 | **LED [P0] [ON/OFF/TOGGLE]** | Command | Sets the output to digital 1 or 0, or toggles the last state written by this extension |
 | **Motor [M1/M2] turns [↶ LEFT/↷ RIGHT] at [TURBO/FAST/MEDIUM/SLOW/STOP]** | Command | Controls the Calliope motor drivers at 100/75/50/25/0%; block M1 corresponds to physical M0, block M2 to physical M1 |
 | **Light sensor pin [P1/P2] detects at least [BRIGHT/MEDIUM/DIM]** | Boolean | Checks whether the analog reading meets the selected light threshold |
-| **Light sensor [P1/P2] brightness as number** | Number | Returns the phototransistor's raw measurement (0–1023), suitable for storage in a MakeCode variable; lower numbers indicate more light with the intended wiring |
+| **Brightness light sensor [P1/P2]** | Number | Returns the phototransistor's raw measurement (0–1023), suitable for storage in a MakeCode variable; lower numbers indicate more light with the intended wiring |
 | **Start light barrier, LED on [P0/P1/P2/P3]** | Command | Explicitly switches the selected light-barrier emitter LED on |
 | **Light barrier sensor [P2] is [BLOCKED/CLEAR]** | Boolean | Checks the phototransistor with an internal fixed threshold of 22; the emitter LED must be started separately |
 | **Push button [P3] is [PRESSED/NOT PRESSED/TAPPED]** | Boolean | Reads a digital input with an internal pull-up; a 30–1000 ms press followed by release is reported once as TAPPED |
@@ -29,7 +29,7 @@ All product names and trademarks mentioned are used solely to describe compatibi
 
 The **Sensoren** group contains the regular numeric light-sensor block and one advanced calibration block: `Light level [..] threshold [..]`.
 
-> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.15 implementation are in German.
+> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.16 implementation are in German.
 
 ## Extension gallery icon
 
@@ -136,9 +136,9 @@ The button block now follows the simple two-wire connection **P0/P1/P2/P3 → no
 
 This is a diagnostic change based on standard Calliope pin-input behavior. The previous reset has **not** been reproduced or conclusively diagnosed, and v0.1.9 has not yet been tested on real hardware.
 
-## Numeric light-sensor block (v0.1.15)
+## Numeric light-sensor block (v0.1.16)
 
-The **Sensoren** group now visibly includes **`Lichtsensor [P2] Helligkeit als Zahl`**. Select **P1** or **P2**; it returns a numeric value instead of a true/false condition. For example, create a MakeCode variable named `Helligkeit` and use the standard variable-assignment block **`setze Helligkeit auf [Lichtsensor P2 Helligkeit als Zahl]`**.
+The **Sensoren** group now visibly includes **`Helligkeit Lichtsensor [P2]`**. Select **P1** or **P2**; it returns a numeric value instead of a true/false condition. For example, create a MakeCode variable named `Helligkeit` and use the standard variable-assignment block **`setze Helligkeit auf [Helligkeit Lichtsensor P2]`**.
 
 The block returns the existing raw analog reading from `pins.analogReadPin()` (nominal scale **0–1023**), not a calibrated brightness in lux. With the intended phototransistor wiring and pull-up, **smaller readings correspond to brighter light**. The existing TypeScript API and block ID are unchanged, so projects using the previously hidden numeric block remain compatible.
 
@@ -148,7 +148,7 @@ Initial thresholds are **BRIGHT = 12**, **MEDIUM = 22**, and **DIM = 40** on the
 
 **These are provisional test values, not universal brightness measurements.** The fischertechnik teaching guide gives a sample threshold of 22 for a phototransistor light barrier in Open Roberta, but this number cannot be assumed to work unchanged with every Calliope device, circuit, or editor.
 
-Measure actual readings with `Lichtsensor [..] Helligkeit als Zahl` while the phototransistor is illuminated and shaded. Then adjust the thresholds at program startup using `Light level [..] threshold [..]`.
+Measure actual readings with `Helligkeit Lichtsensor [..]` while the phototransistor is illuminated and shaded. Then adjust the thresholds at program startup using `Light level [..] threshold [..]`.
 
 Threshold logic:
 
