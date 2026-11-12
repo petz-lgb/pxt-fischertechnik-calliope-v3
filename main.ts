@@ -118,6 +118,7 @@ namespace fischertechnik {
     // Zusaetzliche Zustandsbits fuer das einmalige Antipp-Ereignis.
     let tasterVorherGedrueckt = 0
     let tasterAntippEreignisse = 0
+    let tasterMonitorGestartet = false
     let tasterStartP0 = 0
     let tasterStartP1 = 0
     let tasterStartP2 = 0
@@ -229,18 +230,72 @@ namespace fischertechnik {
     }
 
     /**
+     * Liest den digitalen Pegel eines fischertechnik-Tasters.
+     * Beschaltung: Eingang P0-P3 -> Schliesser -> GND (interner Pull-up).
+     * Ein gedrueckter Taster ergibt daher den Pegel 0.
+     */
+    function tasterIstGedrueckt(pin: Anschluss): boolean {
+        if (pin === Anschluss.P0) return pins.digitalReadPin(DigitalPin.P0) === 0
+        if (pin === Anschluss.P1) return pins.digitalReadPin(DigitalPin.P1) === 0
+        if (pin === Anschluss.P2) return pins.digitalReadPin(DigitalPin.P2) === 0
+        return pins.digitalReadPin(DigitalPin.P3) === 0
+    }
+
+    /** Wird unabhaengig vom Abfrageblock regelmaessig aufgerufen. */
+    function tasterUeberwachen(pin: Anschluss): void {
+        let maske = 1 << (pin as number)
+        let gedrueckt = tasterIstGedrueckt(pin)
+        let warGedrueckt = (tasterVorherGedrueckt & maske) !== 0
+
+        if (gedrueckt && !warGedrueckt) {
+            tasterVorherGedrueckt |= maske
+            let start = input.runningTime()
+            if (pin === Anschluss.P0) tasterStartP0 = start
+            else if (pin === Anschluss.P1) tasterStartP1 = start
+            else if (pin === Anschluss.P2) tasterStartP2 = start
+            else if (pin === Anschluss.P3) tasterStartP3 = start
+        } else if (!gedrueckt && warGedrueckt) {
+            tasterVorherGedrueckt &= ~maske
+            let start = 0
+            if (pin === Anschluss.P0) start = tasterStartP0
+            else if (pin === Anschluss.P1) start = tasterStartP1
+            else if (pin === Anschluss.P2) start = tasterStartP2
+            else if (pin === Anschluss.P3) start = tasterStartP3
+            let dauer = input.runningTime() - start
+            // Nur ein kurzer Druck mit anschliessendem Loslassen gilt als Antippen.
+            if (dauer >= 30 && dauer <= 1000) {
+                tasterAntippEreignisse |= maske
+            }
+        }
+    }
+
+    /** Ein einziger Hintergrundprozess fuer alle tatsaechlich benutzten Taster. */
+    function tasterMonitorStarten(): void {
+        if (tasterMonitorGestartet) return
+        tasterMonitorGestartet = true
+        control.inBackground(function () {
+            while (true) {
+                if ((tasterInitialisiert & 1) !== 0) tasterUeberwachen(Anschluss.P0)
+                if ((tasterInitialisiert & 2) !== 0) tasterUeberwachen(Anschluss.P1)
+                if ((tasterInitialisiert & 4) !== 0) tasterUeberwachen(Anschluss.P2)
+                if ((tasterInitialisiert & 8) !== 0) tasterUeberwachen(Anschluss.P3)
+                // Gibt die Steuerung an andere MakeCode-Programmteile ab.
+                basic.pause(10)
+            }
+        })
+    }
+
+    /**
      * Externer fischertechnik-Taster als Bedingung.
-     * Verdrahtung: Schließer Kontakte 1+3 zwischen GND und Signalpin.
-     * Ein interner Pull-up hält den offenen Eingang auf 1.
-     * Gedrückt zieht den Eingang auf 0 (aktiv LOW).
+     * Verdrahtung: Schliesser Kontakte 1+3 zwischen GND und Signalpin.
+     * 'angetippt' wird durch einen unabhaengigen Hintergrundmonitor erkannt,
+     * gespeichert und bei der ersten passenden Abfrage einmalig gemeldet.
      */
     //% blockId=ftcalliope_taster
     //% block="Taster $pin ist $zustand"
     //% pin.defl=fischertechnik.Anschluss.P3
     //% weight=60 group="Eingabe"
     export function taster(pin: Anschluss, zustand: TasterZustand): boolean {
-        // Der V3 soll nicht in jeder Schleifenrunde neu konfiguriert werden.
-        // Wie bei der bewaehrten LED-Routine erfolgt die Pinwahl explizit.
         let index = pin as number
         if (index < 0 || index > 3) return false
         let maske = 1 << index
@@ -251,45 +306,16 @@ namespace fischertechnik {
             else if (pin === Anschluss.P3) pins.setPull(DigitalPin.P3, PinPullMode.PullUp)
             tasterInitialisiert |= maske
         }
-
-        let pegel = 0
-        if (pin === Anschluss.P0) pegel = pins.digitalReadPin(DigitalPin.P0)
-        else if (pin === Anschluss.P1) pegel = pins.digitalReadPin(DigitalPin.P1)
-        else if (pin === Anschluss.P2) pegel = pins.digitalReadPin(DigitalPin.P2)
-        else if (pin === Anschluss.P3) pegel = pins.digitalReadPin(DigitalPin.P3)
-        // Schliesser nach GND: 0 = gedrueckt, 1 = nicht gedrueckt.
-        let gedrueckt = pegel === 0
-        let warGedrueckt = (tasterVorherGedrueckt & maske) !== 0
-
-        if (gedrueckt && !warGedrueckt) {
-            // Beginn des Tastendrucks merken.
-            tasterVorherGedrueckt |= maske
-            let start = input.runningTime()
-            if (pin === Anschluss.P0) tasterStartP0 = start
-            else if (pin === Anschluss.P1) tasterStartP1 = start
-            else if (pin === Anschluss.P2) tasterStartP2 = start
-            else if (pin === Anschluss.P3) tasterStartP3 = start
-        } else if (!gedrueckt && warGedrueckt) {
-            // Erst nach dem Loslassen ein Antipp-Ereignis erzeugen.
-            tasterVorherGedrueckt &= ~maske
-            let start = 0
-            if (pin === Anschluss.P0) start = tasterStartP0
-            else if (pin === Anschluss.P1) start = tasterStartP1
-            else if (pin === Anschluss.P2) start = tasterStartP2
-            else if (pin === Anschluss.P3) start = tasterStartP3
-            let dauer = input.runningTime() - start
-            // Kurze Kontaktpreller vermeiden, laenge bis eine Sekunde.
-            if (dauer >= 30 && dauer <= 1000) {
-                tasterAntippEreignisse |= maske
-            }
-        }
+        // Nicht in jeder Schleifenrunde neue Hintergrundprozesse starten.
+        tasterMonitorStarten()
 
         if (zustand === TasterZustand.Angetippt) {
-            // Einmalig melden und danach zuruecksetzen.
             let erkannt = (tasterAntippEreignisse & maske) !== 0
             if (erkannt) tasterAntippEreignisse &= ~maske
             return erkannt
         }
+
+        let gedrueckt = tasterIstGedrueckt(pin)
         return zustand === TasterZustand.Gedrueckt ? gedrueckt : !gedrueckt
     }
 
