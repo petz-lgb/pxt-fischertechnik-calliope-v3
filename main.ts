@@ -101,9 +101,8 @@ namespace fischertechnik {
         Frei = 0
     }
 
-    // Anfangszustand der durch diese Erweiterung geschalteten LEDs = AUS.
-    // Der Cache vermeidet, dass digitalReadPin den Ausgang umkonfiguriert.
-    let ledPegel = [0, 0, 0, 0]
+    // Zustand von P0 bis P3 als einfache Bitmaske statt Array.
+    let ledZustaende = 0
     // Vorläufige Werte für fischertechnik-Fototransistor, vom Modell abhängig.
     // Übliche Beschaltung des Sets: hell = kleiner Rohwert, dunkel = größer.
     let grenzeStark = 12
@@ -153,14 +152,23 @@ namespace fischertechnik {
         ledSchalten(pin, zustand)
     }
 
-    // Die gemeinsame LED-Schaltlogik wird auch für die Lichtschranke genutzt.
+    // Explizite Pinwahl und einfacher Zustand ohne Array-Zugriffe.
+    // Dieselbe Funktion wird auch von der Lichtschranke verwendet.
     function ledSchalten(pin: LEDAnschluss, zustand: LEDZustand): void {
-        let i = pin as number
+        let index = pin as number
+        if (index < 0 || index > 3) return
+        let maske = 1 << index
         let neu = 0
         if (zustand === LEDZustand.An) neu = 1
-        else if (zustand === LEDZustand.Wechseln) neu = ledPegel[i] === 1 ? 0 : 1
-        ledPegel[i] = neu
-        pins.digitalWritePin(digitalPin(pin as number as Anschluss), neu)
+        else if (zustand === LEDZustand.Wechseln) neu = (ledZustaende & maske) === 0 ? 1 : 0
+
+        if (pin === LEDAnschluss.P0) pins.digitalWritePin(DigitalPin.P0, neu)
+        else if (pin === LEDAnschluss.P1) pins.digitalWritePin(DigitalPin.P1, neu)
+        else if (pin === LEDAnschluss.P2) pins.digitalWritePin(DigitalPin.P2, neu)
+        else if (pin === LEDAnschluss.P3) pins.digitalWritePin(DigitalPin.P3, neu)
+
+        if (neu === 1) ledZustaende |= maske
+        else ledZustaende &= ~maske
     }
 
     /**
@@ -203,7 +211,7 @@ namespace fischertechnik {
     export function lichtschranke(ledPin: LEDAnschluss, sensorPin: SensorAnschluss, zustand: LichtschrankenZustand, stufe: Helligkeit): boolean {
         if ((ledPin as number) === (sensorPin as number)) return false
         // Nur beim erstmaligen Einschalten kurze Einschwingzeit.
-        if (ledPegel[ledPin as number] !== 1) {
+        if ((ledZustaende & (1 << (ledPin as number))) === 0) {
             ledSchalten(ledPin, LEDZustand.An)
             basic.pause(30)
         }
