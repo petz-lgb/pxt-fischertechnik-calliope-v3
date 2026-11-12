@@ -2,7 +2,7 @@
 >
 > This extension was developed with the assistance of AI ("vibe coding"). Its source code has not yet been fully verified in the MakeCode online compiler or tested on physical hardware. **Please review and test it before using it in lessons.**
 
-# fischertechnik Calliope – MakeCode Extension (v0.1.12)
+# fischertechnik Calliope – MakeCode Extension (v0.1.13)
 
 A collection of child-friendly programming blocks for the **fischertechnik Calliope** construction kit, designed for **Calliope mini V3** in Microsoft MakeCode.
 
@@ -21,13 +21,14 @@ All product names and trademarks mentioned are used solely to describe compatibi
 | **LED [P0] [ON/OFF/TOGGLE]** | Command | Sets the output to digital 1 or 0, or toggles the last state written by this extension |
 | **Motor [M1/M2] turns [↶ LEFT/↷ RIGHT] at [TURBO/FAST/MEDIUM/SLOW/STOP]** | Command | Controls the Calliope motor drivers at 100/75/50/25/0%; block M1 corresponds to physical M0, block M2 to physical M1 |
 | **Light sensor pin [P1/P2] detects at least [BRIGHT/MEDIUM/DIM]** | Boolean | Checks whether the analog reading meets the selected light threshold |
-| **Light barrier LED [P0] sensor [P2] is [BLOCKED/CLEAR] at [BRIGHT/MEDIUM/DIM]** | Boolean | Switches on the emitter LED and evaluates the phototransistor |
+| **Start light barrier, LED on [P0/P1/P2/P3]** | Command | Explicitly switches the selected light-barrier emitter LED on |
+| **Light barrier LED [P0] sensor [P2] is [BLOCKED/CLEAR] at [BRIGHT/MEDIUM/DIM]** | Boolean | Switches on the emitter LED if needed and evaluates the phototransistor |
 | **Push button [P3] is [PRESSED/NOT PRESSED/TAPPED]** | Boolean | Reads a digital input with an internal pull-up; a 30–1000 ms press followed by release is reported once as TAPPED |
 | **wait [1] [Seconds/Minutes]** | Command | Pauses the current program for 0–99 whole seconds or minutes |
 
 The **Sensors** group also contains two advanced calibration blocks: `Light level [..] threshold [..]` and `Light sensor pin [..] reading`.
 
-> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.12 implementation are in German.
+> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.13 implementation are in German.
 
 ## Extension gallery icon
 
@@ -42,12 +43,18 @@ The extension uses a high-contrast **deep blue** (`#1456B8`) and five groups wit
 | **Licht (LED)** | LED output |
 | **Motor** | Motor control |
 | **Eingabe** | Push button |
-| **Sensoren** | Light sensor, light barrier, light threshold calibration, and light-sensor reading |
+| **Sensoren** | Light sensor, light barrier startup, light barrier check, light threshold calibration, and light-sensor reading |
 | **Steuerung** | Wait block (seconds/minutes) |
 
 The two calibration blocks are marked as advanced and may be shown separately under the editor's advanced view. Group names and block labels remain in German for classroom use.
 
 Dropdowns now use **lowercase German words**, such as `an`, `aus`, `wechseln`, `links`, `rechts`, `turbo`, `gedrückt`, and `nicht gedrückt`. Hardware identifiers such as `P0`, `P1`, `M1`, and `M2` remain unchanged. This is a display-only change; TypeScript enum identifiers and behavior are preserved.
+
+## Light barrier LED startup (v0.1.13)
+
+The new command block **`Lichtschranke starten, LED auf [P0]`** in the **Sensoren** group lets students explicitly activate the light emitter before using the light-barrier boolean check. The dropdown offers **P0, P1, P2, P3**; **P0** is the default.
+
+The block calls the same established LED helper used by the normal LED command; it simply sets the selected digital output to `1` and remembers its state. The LED stays on until switched off by the normal LED block. The existing light-barrier boolean block still switches its emitter LED on automatically when first checked and can be used without the startup block. Make sure the LED and phototransistor are connected to **different pins**, and use a suitable series resistor for a bare LED.
 
 ## Custom wait block
 
