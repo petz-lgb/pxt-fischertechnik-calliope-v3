@@ -73,7 +73,7 @@ namespace fischertechnik {
         Mittel = 50,
         //% block="langsam"
         Langsam = 25,
-        //% block="stop"
+        //% block="stop" blockHidden=1
         Stop = 0
     }
 
@@ -195,6 +195,18 @@ namespace fischertechnik {
         let leistung = (tempo as number) * (richtung as number)
         if (tempo === Geschwindigkeit.Stop) leistung = 0
         motors.dualMotorPower(kanal === MotorAnschluss.M1 ? Motor.M0 : Motor.M1, leistung)
+    }
+
+    /**
+     * Stoppt den ausgewählten fischertechnik-Motor.
+     * M1 entspricht Hardware-M0; M2 entspricht Hardware-M1.
+     */
+    //% blockId=ftcalliope_motor_stoppen
+    //% block="Motor stoppen $kanal"
+    //% kanal.defl=fischertechnik.MotorAnschluss.M1
+    //% weight=80 group="Motor"
+    export function motorStoppen(kanal: MotorAnschluss): void {
+        motors.dualMotorPower(kanal === MotorAnschluss.M1 ? Motor.M0 : Motor.M1, 0)
     }
 
     /**
