@@ -2,7 +2,7 @@
 >
 > This extension was developed with the assistance of AI ("vibe coding"). Its source code has not yet been fully verified in the MakeCode online compiler or tested on physical hardware. **Please review and test it before using it in lessons.**
 
-# fischertechnik Calliope – MakeCode Extension (v0.1.13)
+# fischertechnik Calliope – MakeCode Extension (v0.1.14)
 
 A collection of child-friendly programming blocks for the **fischertechnik Calliope** construction kit, designed for **Calliope mini V3** in Microsoft MakeCode.
 
@@ -22,13 +22,13 @@ All product names and trademarks mentioned are used solely to describe compatibi
 | **Motor [M1/M2] turns [↶ LEFT/↷ RIGHT] at [TURBO/FAST/MEDIUM/SLOW/STOP]** | Command | Controls the Calliope motor drivers at 100/75/50/25/0%; block M1 corresponds to physical M0, block M2 to physical M1 |
 | **Light sensor pin [P1/P2] detects at least [BRIGHT/MEDIUM/DIM]** | Boolean | Checks whether the analog reading meets the selected light threshold |
 | **Start light barrier, LED on [P0/P1/P2/P3]** | Command | Explicitly switches the selected light-barrier emitter LED on |
-| **Light barrier LED [P0] sensor [P2] is [BLOCKED/CLEAR] at [BRIGHT/MEDIUM/DIM]** | Boolean | Switches on the emitter LED if needed and evaluates the phototransistor |
+| **Light barrier sensor [P2] is [BLOCKED/CLEAR]** | Boolean | Checks the phototransistor with an internal fixed threshold of 22; the emitter LED must be started separately |
 | **Push button [P3] is [PRESSED/NOT PRESSED/TAPPED]** | Boolean | Reads a digital input with an internal pull-up; a 30–1000 ms press followed by release is reported once as TAPPED |
 | **wait [1] [Seconds/Minutes]** | Command | Pauses the current program for 0–99 whole seconds or minutes |
 
 The **Sensors** group also contains two advanced calibration blocks: `Light level [..] threshold [..]` and `Light sensor pin [..] reading`.
 
-> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.13 implementation are in German.
+> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.14 implementation are in German.
 
 ## Extension gallery icon
 
@@ -36,25 +36,32 @@ The repository includes `icon.png` (300 × 200 px, less than 100 KB) in the repo
 
 ## Toolbox organization and color
 
-The extension uses a high-contrast **deep blue** (`#1456B8`) and five groups within the **fischertechnik** MakeCode category:
+The extension uses a high-contrast **deep blue** (`#1456B8`) and six groups within the **fischertechnik** MakeCode category:
 
 | Group shown in MakeCode | Blocks |
 |---|---|
 | **Licht (LED)** | LED output |
 | **Motor** | Motor control |
 | **Eingabe** | Push button |
-| **Sensoren** | Light sensor, light barrier startup, light barrier check, light threshold calibration, and light-sensor reading |
+| **Sensoren** | Light sensor, light threshold calibration, and light-sensor reading |
+| **Lichtschranke** | Start emitter LED (first), check light barrier (second) |
 | **Steuerung** | Wait block (seconds/minutes) |
 
 The two calibration blocks are marked as advanced and may be shown separately under the editor's advanced view. Group names and block labels remain in German for classroom use.
 
 Dropdowns now use **lowercase German words**, such as `an`, `aus`, `wechseln`, `links`, `rechts`, `turbo`, `gedrückt`, and `nicht gedrückt`. Hardware identifiers such as `P0`, `P1`, `M1`, and `M2` remain unchanged. This is a display-only change; TypeScript enum identifiers and behavior are preserved.
 
-## Light barrier LED startup (v0.1.13)
+## Light barrier blocks (v0.1.14)
 
-The new command block **`Lichtschranke starten, LED auf [P0]`** in the **Sensoren** group lets students explicitly activate the light emitter before using the light-barrier boolean check. The dropdown offers **P0, P1, P2, P3**; **P0** is the default.
+The toolbox now has a dedicated **Lichtschranke** group. The first block is **`Lichtschranke starten, LED auf [P0]`**, which explicitly switches on the selected emitter LED on P0, P1, P2, or P3.
 
-The block calls the same established LED helper used by the normal LED command; it simply sets the selected digital output to `1` and remembers its state. The LED stays on until switched off by the normal LED block. The existing light-barrier boolean block still switches its emitter LED on automatically when first checked and can be used without the startup block. Make sure the LED and phototransistor are connected to **different pins**, and use a suitable series resistor for a bare LED.
+The next block is a compact, horizontal, Boolean check: **`Lichtschranke Sensor [P2] ist [unterbrochen/frei]`**. It uses `inlineInputMode=inline`, offers P1 or P2 as analog receiver inputs, and exposes only the two desired states (`unterbrochen`, `frei`).
+
+The light-barrier check **does not turn on the LED**. It reads the phototransistor only, so call the LED startup block first (e.g. in `beim Start`). It compares the analog value with a **fixed internal threshold of 22** (a provisional value for this setup). This threshold is not linked to the light-sensor brightness dropdown or its adjustable `Lichtstufe` calibration.
+
+The former four-argument light-barrier block has been **deprecated**, not deleted. Existing MakeCode programs using the old block should continue to work; it retains its original auto-on LED behavior and brightness-level dropdown. Newly created programs should use the two new-style blocks above.
+
+Never use the same pin for the sender LED and receiver sensor, and follow electrical wiring requirements for the chosen components. Test the fixed threshold on the actual phototransistor and illumination setup before classroom use.
 
 ## Custom wait block
 
@@ -85,7 +92,7 @@ For the analog fischertechnik phototransistor, **P1 and P2** are the practical c
 - **Motor:** Connect to **M0+/M0−** (block option M1) or **M1+/M1−** (block option M2). The directional arrows refer to electrical rotation direction. Actual visible rotation depends on polarity and viewing angle.
 - **Phototransistor:** Connect to an analog input (P1 or P2) using the wiring specified for the fischertechnik set. The extension enables a pull-up resistor; with this arrangement, **lower raw readings mean more light**.
 - **Push button (v0.1.9):** Use the normally open contacts **1 and 3** between **GND and the selected signal pin**. The extension enables the internal pull-up resistor: unpressed reads **1**, pressed reads **0**. Do **not** wire the button between 3.3 V and the input for this version; it will not detect a press.
-- **Light barrier:** Use **different pins** for the emitter LED and phototransistor. The LED switches on when the light barrier is first evaluated and stays on. To turn it off later, use the LED block with `OFF` on the emitter pin.
+- **Light barrier:** Use **different pins** for the emitter LED and phototransistor. Switch on the LED explicitly using `Lichtschranke starten`; the new condition block only reads the receiver. Turn off the LED with the normal LED block `aus`. The legacy condition block still turns its emitter on automatically.
 
 ## Push-button reset troubleshooting (v0.1.6)
 
