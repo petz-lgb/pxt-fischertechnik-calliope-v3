@@ -6,7 +6,7 @@
  */
 
 //% color="#1456B8" icon="\uf085" block="fischertechnik" weight=85
-//% groups=['Licht (LED)', 'Motor', 'Eingabe', 'Sensoren', 'Lichtschranke', 'Steuerung']
+//% groups=['Licht (LED)', 'Motor', 'Eingabe', 'Sensoren', 'Lichtschranke', 'Steuerung', 'Logik']
 namespace fischertechnik {
     /** Vier frei nutzbare digitale Ringkontakte P0 bis P3. */
     export enum Anschluss {
@@ -101,6 +101,37 @@ namespace fischertechnik {
         Unterbrochen = 1,
         //% block="frei"
         Frei = 0
+    }
+
+    /** Bedingungen, die in einer benutzerdefinierten Schleife erneut gelesen werden koennen. */
+    export enum BisBedingung {
+        //% block="Taster P0 gedrückt"
+        TasterP0 = 0,
+        //% block="Taster P1 gedrückt"
+        TasterP1 = 1,
+        //% block="Taster P2 gedrückt"
+        TasterP2 = 2,
+        //% block="Taster P3 gedrückt"
+        TasterP3 = 3,
+        //% block="Lichtschranke P1 unterbrochen"
+        LichtschrankeP1 = 4,
+        //% block="Lichtschranke P2 unterbrochen"
+        LichtschrankeP2 = 5,
+        //% block="Taster P0 angetippt"
+        AngetipptP0 = 6,
+        //% block="Taster P1 angetippt"
+        AngetipptP1 = 7,
+        //% block="Taster P2 angetippt"
+        AngetipptP2 = 8,
+        //% block="Taster P3 angetippt"
+        AngetipptP3 = 9
+    }
+
+    export enum BisWahrheitswert {
+        //% block="wahr"
+        Wahr = 1,
+        //% block="falsch"
+        Falsch = 0
     }
 
     /** Einheit der kindgerechten Wartezeit. */
@@ -374,6 +405,47 @@ namespace fischertechnik {
             basic.pause(dauer * 60000)
         } else {
             basic.pause(dauer * 1000)
+        }
+    }
+
+    /**
+     * Wiederholt Anweisungen, bis die gewaehlte Sensorbedingung den Zielwert hat.
+     * Die Bedingung wird VOR JEDEM Durchlauf frisch gelesen.
+     * Anders als bei einem booleanschen Funktionsparameter bleibt sie nicht
+     * auf dem Wert beim erstmaligen Funktionsaufruf eingefroren.
+     */
+    function bisBedingungPruefen(bedingung: BisBedingung): boolean {
+        if (bedingung === BisBedingung.TasterP0) return taster(Anschluss.P0, TasterZustand.Gedrueckt)
+        if (bedingung === BisBedingung.TasterP1) return taster(Anschluss.P1, TasterZustand.Gedrueckt)
+        if (bedingung === BisBedingung.TasterP2) return taster(Anschluss.P2, TasterZustand.Gedrueckt)
+        if (bedingung === BisBedingung.TasterP3) return taster(Anschluss.P3, TasterZustand.Gedrueckt)
+        if (bedingung === BisBedingung.LichtschrankeP1) return lichtschrankePruefen(SensorAnschluss.P1, LichtschrankenZustand.Unterbrochen)
+        if (bedingung === BisBedingung.LichtschrankeP2) return lichtschrankePruefen(SensorAnschluss.P2, LichtschrankenZustand.Unterbrochen)
+        if (bedingung === BisBedingung.AngetipptP0) return taster(Anschluss.P0, TasterZustand.Angetippt)
+        if (bedingung === BisBedingung.AngetipptP1) return taster(Anschluss.P1, TasterZustand.Angetippt)
+        if (bedingung === BisBedingung.AngetipptP2) return taster(Anschluss.P2, TasterZustand.Angetippt)
+        if (bedingung === BisBedingung.AngetipptP3) return taster(Anschluss.P3, TasterZustand.Angetippt)
+        return false
+    }
+
+    /**
+     * Wiederholt alle enthaltenen Anweisungen, bis die Bedingung
+     * zum ausgewaehlten Wahrheitswert passt. Die Bedingung ist als
+     * Sensor-Dropdown ausgefuehrt, weil frei eingesetzte boolesche
+     * Parameter in MakeCode-Erweiterungen nur einmal ausgewertet werden.
+     */
+    //% blockId=ftcalliope_bis
+    //% block="bis $bedingung $ziel mache"
+    //% bedingung.defl=fischertechnik.BisBedingung.TasterP3
+    //% ziel.defl=fischertechnik.BisWahrheitswert.Wahr
+    //% handlerStatement=1
+    //% weight=100 group="Logik"
+    export function bis(bedingung: BisBedingung, ziel: BisWahrheitswert, body: () => void): void {
+        let zielWahr = ziel === BisWahrheitswert.Wahr
+        while (bisBedingungPruefen(bedingung) !== zielWahr) {
+            body()
+            // Gibt anderen Calliope-Prozessen Zeit, auch bei leeren Schleifen.
+            basic.pause(1)
         }
     }
 
