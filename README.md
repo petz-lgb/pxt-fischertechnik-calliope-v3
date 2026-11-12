@@ -2,7 +2,7 @@
 >
 > This extension was developed with the assistance of AI ("vibe coding"). Its source code has not yet been fully verified in the MakeCode online compiler or tested on physical hardware. **Please review and test it before using it in lessons.**
 
-# fischertechnik Calliope – MakeCode Extension (v0.1.0)
+# fischertechnik Calliope – MakeCode Extension (v0.1.1)
 
 A collection of child-friendly programming blocks for the **fischertechnik Calliope** construction kit, designed for **Calliope mini V3** in Microsoft MakeCode.
 
@@ -18,31 +18,31 @@ All product names and trademarks mentioned are used solely to describe compatibi
 
 | Block | Type | Function |
 |---|---|---|
-| **LED pin [P0] [ON/OFF/TOGGLE]** | Command | Sets the output to digital 1 or 0, or toggles the last state written by this extension |
+| **LED [P0] [ON/OFF/TOGGLE]** | Command | Sets the output to digital 1 or 0, or toggles the last state written by this extension |
 | **Motor [M1/M2] turns [↶ LEFT/↷ RIGHT] at [TURBO/FAST/MEDIUM/SLOW/STOP]** | Command | Controls the Calliope motor drivers at 100/75/50/25/0%; block M1 corresponds to physical M0, block M2 to physical M1 |
 | **Light sensor pin [P1/P2] detects at least [BRIGHT/MEDIUM/DIM]** | Boolean | Checks whether the analog reading meets the selected light threshold |
 | **Light barrier LED [P0] sensor [P2] is [BLOCKED/CLEAR] at [BRIGHT/MEDIUM/DIM]** | Boolean | Switches on the emitter LED and evaluates the phototransistor |
 | **Push button pin [P3] is [PRESSED/NOT PRESSED]** | Boolean | Reads a digital input with a pull-down resistor; the normally open switch connects 3 V to the pin when pressed |
 
-The **Settings** section also contains two calibration blocks: \`Light level [..] threshold [..]\` and \`Light sensor pin [..] reading\`.
+The **Settings** section also contains two calibration blocks: `Light level [..] threshold [..]` and `Light sensor pin [..] reading`.
 
-> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.0 implementation are in German.
+> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.1 implementation are in German.
 
 ## Pin selection: what is actually available?
 
 The Calliope mini has **six large contact pads**, but two of them are **+3 V** and **GND**, not programmable inputs/outputs. The other four are digital signals **P0, P1, P2, and P3**.
 
-The LED and push-button blocks therefore offer six **real digital signal pins**: **P0–P3** plus **C8 and C9**, which are available on the **pin header**, not among the six large contact pads.
+The LED block and the LED-emitter selection in the light-barrier block offer only **P0–P3**. The push-button block additionally supports **C8 and C9** on the **pin header**, not among the six large contact pads.
 
 For the analog fischertechnik phototransistor, **P1 and P2** are the practical choices among the large contact pads on Calliope mini V3. Other analog channels are used for different purposes. The light-sensor dropdown is deliberately limited to P1 and P2.
 
 ## Wiring and operation
 
-- **LED:** Connect between the selected signal pin and GND, observing polarity. \`ON\` sets the output HIGH. Use the LED components provided with the fischertechnik set; do not connect an unprotected bare LED without an appropriate series resistor.
+- **LED:** Connect between the selected signal pin and GND, observing polarity. `ON` sets the output HIGH. Use the LED components provided with the fischertechnik set; do not connect an unprotected bare LED without an appropriate series resistor.
 - **Motor:** Connect to **M0+/M0−** (block option M1) or **M1+/M1−** (block option M2). The directional arrows refer to electrical rotation direction. Actual visible rotation depends on polarity and viewing angle.
 - **Phototransistor:** Connect to an analog input (P1 or P2) using the wiring specified for the fischertechnik set. The extension enables a pull-up resistor; with this arrangement, **lower raw readings mean more light**.
 - **Push button:** Use the normally open contacts **1 and 3**, connected between **3 V and the selected signal pin**. The extension uses a pull-down resistor so an unpressed button reliably reads 0. Some guides show wiring against GND; that arrangement requires inverted logic and will not work with the current implementation without changes.
-- **Light barrier:** Use **different pins** for the emitter LED and phototransistor. The LED switches on when the light barrier is first evaluated and stays on. To turn it off later, use the LED block with \`OFF\` on the emitter pin.
+- **Light barrier:** Use **different pins** for the emitter LED and phototransistor. The LED switches on when the light barrier is first evaluated and stays on. To turn it off later, use the LED block with `OFF` on the emitter pin.
 
 ## Light thresholds and calibration
 
@@ -50,19 +50,19 @@ Initial thresholds are **BRIGHT = 12**, **MEDIUM = 22**, and **DIM = 40** on the
 
 **These are provisional test values, not universal brightness measurements.** The fischertechnik teaching guide gives a sample threshold of 22 for a phototransistor light barrier in Open Roberta, but this number cannot be assumed to work unchanged with every Calliope device, circuit, or editor.
 
-Measure actual readings with \`Light sensor pin [..] reading\` while the phototransistor is illuminated and shaded. Then adjust the thresholds at program startup using \`Light level [..] threshold [..]\`.
+Measure actual readings with `Light sensor pin [..] reading` while the phototransistor is illuminated and shaded. Then adjust the thresholds at program startup using `Light level [..] threshold [..]`.
 
 Threshold logic:
 
-- Brightness condition is true when \`analog reading <= threshold\`.
-- A light barrier is considered blocked when \`analog reading > threshold\`.
+- Brightness condition is true when `analog reading <= threshold`.
+- A light barrier is considered blocked when `analog reading > threshold`.
 - Higher thresholds make the sensor respond to weaker light.
 
 ## Motors and hardware version
 
 This extension targets **Calliope mini V3**.
 
-On V3, \`motors.dualMotorPower()\` accepts **negative percentage values**, which makes reversing motor direction possible. Older V2/DAL implementations may interpret negative values as stop rather than reverse. The motor-direction implementation in this extension is therefore intended specifically for **V3**.
+On V3, `motors.dualMotorPower()` accepts **negative percentage values**, which makes reversing motor direction possible. Older V2/DAL implementations may interpret negative values as stop rather than reverse. The motor-direction implementation in this extension is therefore intended specifically for **V3**.
 
 **Physical motor labels:** The block's **M1** selects the Calliope's physical **M0** motor connection; the block's **M2** selects its physical **M1** connection.
 
@@ -72,27 +72,27 @@ The extension files must be available at the root of a compatible GitHub reposit
 
 1. Open [MakeCode for Calliope mini](https://makecode.calliope.cc/) and create a new project for **Calliope mini V3**.
 2. Open **Extensions**.
-3. Search for \`github:petz-lgb/pxt-fischertechnik-calliope-v3\`.
+3. Search for `github:petz-lgb/pxt-fischertechnik-calliope-v3`.
 4. Add the extension. The **fischertechnik** category provides the five blocks and calibration options.
 
 The standard GitHub URL import is intended for an accessible, public repository. A private repository may require a different development or distribution workflow.
 
 ### Short example
 
-\`\`\`typescript
+```typescript
 basic.forever(function () {
     if (fischertechnik.taster(fischertechnik.Anschluss.P3, fischertechnik.TasterZustand.Gedrueckt)) {
-        fischertechnik.led(fischertechnik.Anschluss.P1, fischertechnik.LEDZustand.An)
+        fischertechnik.led(fischertechnik.LEDAnschluss.P1, fischertechnik.LEDZustand.An)
     } else {
-        fischertechnik.led(fischertechnik.Anschluss.P1, fischertechnik.LEDZustand.Aus)
+        fischertechnik.led(fischertechnik.LEDAnschluss.P1, fischertechnik.LEDZustand.Aus)
     }
     basic.pause(20)
 })
-\`\`\`
+```
 
 ## Development and testing status
 
-- TypeScript source, \`pxt.json\`, examples, and documentation are included.
+- TypeScript source, `pxt.json`, examples, and documentation are included.
 - The source code has undergone static checks, but **MakeCode/PXT compilation and actual motor direction have not yet been verified**.
 - Before classroom use, test on a single Calliope mini V3: first LED and push button, then phototransistor, and finally motor.
 
