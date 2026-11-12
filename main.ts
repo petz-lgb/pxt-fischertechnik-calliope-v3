@@ -42,9 +42,9 @@ namespace fischertechnik {
     }
 
     export enum MotorAnschluss {
-        //% block="M1 (M0+/M0−)"
+        //% block="M1"
         M1 = 0,
-        //% block="M2 (M1+/M1−)"
+        //% block="M2"
         M2 = 1
     }
 
