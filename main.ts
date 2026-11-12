@@ -41,11 +41,11 @@ namespace fischertechnik {
     }
 
     export enum LEDZustand {
-        //% block="AN"
+        //% block="an"
         An = 1,
-        //% block="AUS"
+        //% block="aus"
         Aus = 0,
-        //% block="WECHSELN"
+        //% block="wechseln"
         Wechseln = 2
     }
 
@@ -58,46 +58,46 @@ namespace fischertechnik {
     }
 
     export enum Drehrichtung {
-        //% block="↶ LINKS"
+        //% block="↶ links"
         Links = -1,
-        //% block="↷ RECHTS"
+        //% block="↷ rechts"
         Rechts = 1
     }
 
     export enum Geschwindigkeit {
-        //% block="TURBO"
+        //% block="turbo"
         Turbo = 100,
-        //% block="SCHNELL"
+        //% block="schnell"
         Schnell = 75,
-        //% block="MITTEL"
+        //% block="mittel"
         Mittel = 50,
-        //% block="LANGSAM"
+        //% block="langsam"
         Langsam = 25,
-        //% block="STOP"
+        //% block="stop"
         Stop = 0
     }
 
     /** Die Stufe bezeichnet die mindestens benötigte Helligkeit. */
     export enum Helligkeit {
-        //% block="STARK"
+        //% block="stark"
         Stark = 0,
-        //% block="MITTEL"
+        //% block="mittel"
         Mittel = 1,
-        //% block="SCHWACH"
+        //% block="schwach"
         Schwach = 2
     }
 
     export enum TasterZustand {
-        //% block="GEDRÜCKT"
+        //% block="gedrückt"
         Gedrueckt = 1,
-        //% block="NICHT GEDRÜCKT"
+        //% block="nicht gedrückt"
         NichtGedrueckt = 0
     }
 
     export enum LichtschrankenZustand {
-        //% block="UNTERBROCHEN"
+        //% block="unterbrochen"
         Unterbrochen = 1,
-        //% block="FREI"
+        //% block="frei"
         Frei = 0
     }
 
