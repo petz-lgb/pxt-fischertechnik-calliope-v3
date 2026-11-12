@@ -5,8 +5,8 @@
  * weitere Kontakte sind auf V3 entweder nicht analogfähig oder belegt.
  */
 
-//% color="#137C85" icon="\uf085" block="fischertechnik" weight=85
-//% groups=['Aktoren', 'Sensoren', 'Einstellungen']
+//% color="#1456B8" icon="\uf085" block="fischertechnik" weight=85
+//% groups=['Licht (LED)', 'Motor', 'Eingabe', 'Sensoren']
 namespace fischertechnik {
     /** Vier frei nutzbare digitale Ringkontakte P0 bis P3. */
     export enum Anschluss {
@@ -147,7 +147,7 @@ namespace fischertechnik {
     //% blockId=ftcalliope_led
     //% block="LED $pin $zustand"
     //% pin.defl=fischertechnik.LEDAnschluss.P0
-    //% weight=100 group="Aktoren"
+    //% weight=100 group="Licht (LED)"
     export function led(pin: LEDAnschluss, zustand: LEDZustand): void {
         ledSchalten(pin, zustand)
     }
@@ -180,7 +180,7 @@ namespace fischertechnik {
     //% blockId=ftcalliope_motor
     //% block="Motor $kanal dreht $richtung mit $tempo"
     //% kanal.defl=fischertechnik.MotorAnschluss.M1
-    //% weight=90 group="Aktoren"
+    //% weight=90 group="Motor"
     export function motor(kanal: MotorAnschluss, richtung: Drehrichtung, tempo: Geschwindigkeit): void {
         let leistung = (tempo as number) * (richtung as number)
         if (tempo === Geschwindigkeit.Stop) leistung = 0
@@ -227,7 +227,7 @@ namespace fischertechnik {
     //% blockId=ftcalliope_taster
     //% block="Taster $pin ist $zustand"
     //% pin.defl=fischertechnik.Anschluss.P3
-    //% weight=60 group="Sensoren"
+    //% weight=60 group="Eingabe"
     export function taster(pin: Anschluss, zustand: TasterZustand): boolean {
         let gpio = digitalPin(pin)
         pins.setPull(gpio, PinPullMode.PullDown)
@@ -239,7 +239,7 @@ namespace fischertechnik {
     //% blockId=ftcalliope_grenze
     //% block="Lichtstufe $stufe Grenzwert $wert"
     //% wert.min=0 wert.max=1023 wert.defl=22
-    //% weight=20 group="Einstellungen" advanced=true
+    //% weight=20 group="Sensoren" advanced=true
     export function lichtGrenze(stufe: Helligkeit, wert: number): void {
         wert = Math.max(0, Math.min(1023, Math.round(wert)))
         if (stufe === Helligkeit.Stark) grenzeStark = wert
@@ -251,7 +251,7 @@ namespace fischertechnik {
     //% blockId=ftcalliope_lichtwert
     //% block="Lichtsensor Pin $pin Messwert"
     //% pin.defl=fischertechnik.SensorAnschluss.P2
-    //% weight=10 group="Einstellungen" advanced=true
+    //% weight=10 group="Sensoren" advanced=true
     export function lichtMesswert(pin: SensorAnschluss): number {
         return lichtWert(pin)
     }
