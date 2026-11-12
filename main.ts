@@ -210,6 +210,18 @@ namespace fischertechnik {
     }
 
     /**
+     * Startet die Lichtschranke, indem sie die gewaehlte Sende-LED einschaltet.
+     * Die Sende-LED bleibt eingeschaltet, bis sie separat ausgeschaltet wird.
+     */
+    //% blockId=ftcalliope_lichtschranke_starten
+    //% block="Lichtschranke starten, LED auf $ledPin"
+    //% ledPin.defl=fischertechnik.LEDAnschluss.P0
+    //% weight=75 group="Sensoren"
+    export function lichtschrankeStarten(ledPin: LEDAnschluss): void {
+        ledSchalten(ledPin, LEDZustand.An)
+    }
+
+    /**
      * Schaltet die Sender-LED ein und meldet, ob der Lichtstrahl unterbrochen ist.
      * Die Sender-LED bleibt nach Aufruf eingeschaltet.
      */
