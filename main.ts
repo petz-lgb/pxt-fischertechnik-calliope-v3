@@ -6,7 +6,7 @@
  */
 
 //% color="#1456B8" icon="\uf085" block="fischertechnik" weight=85
-//% groups=['Licht (LED)', 'Motor', 'Eingabe', 'Sensoren']
+//% groups=['Licht (LED)', 'Motor', 'Eingabe', 'Sensoren', 'Steuerung']
 namespace fischertechnik {
     /** Vier frei nutzbare digitale Ringkontakte P0 bis P3. */
     export enum Anschluss {
@@ -99,6 +99,14 @@ namespace fischertechnik {
         Unterbrochen = 1,
         //% block="frei"
         Frei = 0
+    }
+
+    /** Einheit der kindgerechten Wartezeit. */
+    export enum WarteEinheit {
+        //% block="Sekunden"
+        Sekunden = 0,
+        //% block="Minuten"
+        Minuten = 1
     }
 
     // Zustand von P0 bis P3 als einfache Bitmaske statt Array.
@@ -241,6 +249,22 @@ namespace fischertechnik {
         else if (pin === Anschluss.P3) pegel = pins.digitalReadPin(DigitalPin.P3)
         let gedrueckt = pegel === 1
         return zustand === TasterZustand.Gedrueckt ? gedrueckt : !gedrueckt
+    }
+
+    /**
+     * Wartet die ausgewählte Anzahl ganzer Sekunden oder Minuten.
+     * Die Zahl ist auf zwei Stellen (0 bis 99) begrenzt.
+     */
+    //% blockId=ftcalliope_warte
+    //% block="warte $dauer $einheit"
+    //% dauer.min=0 dauer.max=99 dauer.defl=1
+    //% weight=100 group="Steuerung"
+    export function warte(dauer: number, einheit: WarteEinheit): void {
+        // Auch beim Aufruf über TypeScript auf den zulässigen Bereich begrenzen.
+        if (isNaN(dauer)) dauer = 0
+        dauer = Math.max(0, Math.min(99, Math.round(dauer)))
+        let millisekunden = dauer * (einheit === WarteEinheit.Minuten ? 60000 : 1000)
+        basic.pause(millisekunden)
     }
 
     /** Kalibriert eine der drei Lichtstufen auf einen eigenen Analogwert (0 bis 1023). */
