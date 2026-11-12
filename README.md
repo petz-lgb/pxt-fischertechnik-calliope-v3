@@ -2,7 +2,7 @@
 >
 > This extension was developed with the assistance of AI ("vibe coding"). Its source code has not yet been fully verified in the MakeCode online compiler or tested on physical hardware. **Please review and test it before using it in lessons.**
 
-# fischertechnik Calliope – MakeCode Extension (v0.1.5)
+# fischertechnik Calliope – MakeCode Extension (v0.1.6)
 
 A collection of child-friendly programming blocks for the **fischertechnik Calliope** construction kit, designed for **Calliope mini V3** in Microsoft MakeCode.
 
@@ -26,7 +26,7 @@ All product names and trademarks mentioned are used solely to describe compatibi
 
 The **Sensors** group also contains two advanced calibration blocks: `Light level [..] threshold [..]` and `Light sensor pin [..] reading`.
 
-> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.5 implementation are in German.
+> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.6 implementation are in German.
 
 ## Toolbox organization and color
 
@@ -58,6 +58,21 @@ For the analog fischertechnik phototransistor, **P1 and P2** are the practical c
 - **Phototransistor:** Connect to an analog input (P1 or P2) using the wiring specified for the fischertechnik set. The extension enables a pull-up resistor; with this arrangement, **lower raw readings mean more light**.
 - **Push button:** Use the normally open contacts **1 and 3**, connected between **3 V and the selected signal pin**. The extension uses a pull-down resistor so an unpressed button reliably reads 0. Some guides show wiring against GND; that arrangement requires inverted logic and will not work with the current implementation without changes.
 - **Light barrier:** Use **different pins** for the emitter LED and phototransistor. The LED switches on when the light barrier is first evaluated and stays on. To turn it off later, use the LED block with `OFF` on the emitter pin.
+
+## Push-button reset troubleshooting (v0.1.6)
+
+A Calliope mini V3 may reset if a connected switch creates an electrical short, or if there is a runtime issue in the input code. The exact cause of the reported reset has not yet been confirmed.
+
+Version 0.1.6 simplifies the push-button function. It configures the selected input's internal pull-down **once per pin**, then directly reads P0–P3 instead of repeatedly calling `setPull` and using a dynamic pin mapping. LED and motor behavior are unchanged.
+
+For a safe diagnosis, **disconnect all external wiring first** and test the new button block on an unconnected pin. This should not reset the board (although the reading should stay at "not pressed"). Then check the wiring before connecting the switch:
+
+- The intended normally-open connection for this extension is **3.3 V → switch → selected signal pin** (not 3.3 V → GND).
+- Never connect 3.3 V directly to GND, even through a closed switch.
+- Do not share a pin simultaneously between an LED output and a push-button input.
+- If the board resets only when pressing the switch, check its physical terminal pairing and connections before repeating the test.
+
+The normal MakeCode calls `pins.setPull()` and `pins.digitalReadPin()` are documented by Calliope, but this patch still requires verification on physical V3 hardware.
 
 ## Light thresholds and calibration
 
