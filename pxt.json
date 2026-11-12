@@ -1,6 +1,6 @@
 {
   "name": "fischertechnik-calliope",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Kindgerechte Calliope-MakeCode-Bloecke fuer fischertechnik: LED, Motor, Fototransistor, Lichtschranke, Taster",
   "license": "MIT",
   "dependencies": {
