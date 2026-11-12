@@ -2,7 +2,7 @@
 >
 > This extension was developed with the assistance of AI ("vibe coding"). Its source code has not yet been fully verified in the MakeCode online compiler or tested on physical hardware. **Please review and test it before using it in lessons.**
 
-# fischertechnik Calliope – MakeCode Extension (v0.1.19)
+# fischertechnik Calliope – MakeCode Extension (v0.1.20)
 
 A collection of child-friendly programming blocks for the **fischertechnik Calliope** construction kit, designed for **Calliope mini V3** in Microsoft MakeCode.
 
@@ -27,10 +27,11 @@ All product names and trademarks mentioned are used solely to describe compatibi
 | **Light barrier sensor [P2] is [BLOCKED/CLEAR]** | Boolean | Checks the phototransistor with an internal fixed threshold of 800; the emitter LED must be started separately |
 | **Push button [P3] is [PRESSED/NOT PRESSED/TAPPED]** | Boolean | Reads a digital input with an internal pull-up; a 30–1000 ms press followed by release is reported once as TAPPED |
 | **wait [1] [Seconds/Minutes]** | Command | Pauses the current program for 0–99 whole seconds or minutes |
+| **until [sensor condition] [true/false] do** | Loop | Runs the nested commands until the selected hardware condition matches the desired truth value; rechecks the sensor every iteration |
 
 The **Sensoren** group contains the regular numeric light-sensor block and one advanced calibration block: `Light level [..] threshold [..]`.
 
-> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.19 implementation are in German.
+> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.20 implementation are in German.
 
 ## Extension gallery icon
 
@@ -38,7 +39,7 @@ The repository includes `icon.png` (300 × 200 px, less than 100 KB) in the repo
 
 ## Toolbox organization and color
 
-The extension uses a high-contrast **deep blue** (`#1456B8`) and six groups within the **fischertechnik** MakeCode category:
+The extension uses a high-contrast **deep blue** (`#1456B8`) and seven groups within the **fischertechnik** MakeCode category:
 
 | Group shown in MakeCode | Blocks |
 |---|---|
@@ -48,6 +49,7 @@ The extension uses a high-contrast **deep blue** (`#1456B8`) and six groups with
 | **Sensoren** | Light-sensor condition, visible numerical brightness measurement, and advanced light-threshold calibration |
 | **Lichtschranke** | Start emitter LED (first), check light barrier (second) |
 | **Steuerung** | Wait block (seconds/minutes) |
+| **Logik** | Loop until a selected sensor condition is true or false |
 
 The light-threshold calibration block remains advanced. The numerical brightness block is now visible in the normal Sensors section. Group names and block labels remain in German for classroom use.
 
@@ -79,6 +81,18 @@ The comparison direction (`reading > threshold` means interrupted) remains corre
 The newer `Lichtschranke Sensor [P2] ist [unterbrochen/frei]` block now considers the barrier **interrupted when the raw analog reading is greater than 25**, and **free otherwise**. Only the newer light-barrier check was changed; the regular light-sensor thresholds (12/22/40), numeric brightness reporter, and deprecated old light-barrier block remain unchanged.
 
 Changing the threshold from 22 to 25 can only change the result for raw readings of **23–25**. If the barrier still reports interrupted with the light unobstructed, use the `Helligkeit Lichtsensor [P2]` reporter to inspect the actual receiver value with and without an obstruction. The LED transmitter must be switched on by `Lichtschranke starten` first, and transmitter/receiver must not share a pin.
+
+## Logic: repeat-until sensor condition (v0.1.20)
+
+The **Logik** group contains a C-shaped block with a statement body:
+
+**`bis [Taster P3 gedrückt] [wahr] mache`**
+
+Select a condition from the first dropdown (pressed/tapped Taster on P0–P3, or interrupted light barrier on P1/P2), and select `wahr` or `falsch` in the second dropdown. The commands nested in the block run repeatedly **until the selected sensor condition equals the desired Boolean value**. The condition is checked **before** each iteration, so if it is already satisfied, the body does not run. A 1 ms pause between iterations lets the microcontroller run other fibers.
+
+**Critical MakeCode limitation:** This custom extension **cannot** provide a general-purpose Boolean expression socket that automatically reevaluates arbitrary attached expressions each loop. In ordinary extension functions, `condition: boolean` is evaluated once on entry and passed by value; a loop based on this parameter would not react to a changing sensor. For correctness, this block uses a **dropdown of supported sensor conditions**, which the extension explicitly re-reads on each iteration. Use the built-in **`während`** block with an inverted condition for arbitrary complex expressions. A completely general `bis [any Boolean block] [wahr|falsch] mache` requires editor/compiler support, not just a normal GitHub extension.
+
+Example: choose `bis [Lichtschranke P2 unterbrochen] [wahr] mache` and put motor commands inside. The motor commands repeat while the light beam is free and stop being issued after it is blocked; put `Motor stoppen` directly **after** the loop if the motor must stop physically. Before testing a light barrier, use `Lichtschranke starten` to enable the emitter LED. For tap conditions, remember that `angetippt` is a one-shot event.
 
 ## Custom wait block
 
