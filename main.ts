@@ -383,7 +383,7 @@ namespace fischertechnik {
      * Als Zahlenblock z.B. in "setze Helligkeit auf ..." verwendbar.
      */
     //% blockId=ftcalliope_lichtwert
-    //% block="Lichtsensor $pin Helligkeit als Zahl"
+    //% block="Helligkeit Lichtsensor $pin"
     //% pin.defl=fischertechnik.SensorAnschluss.P2
     //% weight=79 group="Sensoren"
     export function lichtMesswert(pin: SensorAnschluss): number {
