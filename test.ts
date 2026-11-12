@@ -4,8 +4,8 @@
 // Lichtschranke nutzt Sender P0 und Empfänger P2.
 // basic.forever(function () {
 //     if (fischertechnik.taster(fischertechnik.Anschluss.P3, fischertechnik.TasterZustand.Gedrueckt)) {
-//         fischertechnik.led(fischertechnik.Anschluss.P1, fischertechnik.LEDZustand.An)
+//         fischertechnik.led(fischertechnik.LEDAnschluss.P1, fischertechnik.LEDZustand.An)
 //     } else {
-//         fischertechnik.led(fischertechnik.Anschluss.P1, fischertechnik.LEDZustand.Aus)
+//         fischertechnik.led(fischertechnik.LEDAnschluss.P1, fischertechnik.LEDZustand.Aus)
 //     }
 // })
