@@ -2,7 +2,7 @@
 >
 > This extension was developed with the assistance of AI ("vibe coding"). Its source code has not yet been fully verified in the MakeCode online compiler or tested on physical hardware. **Please review and test it before using it in lessons.**
 
-# fischertechnik Calliope – MakeCode Extension (v0.1.21)
+# fischertechnik Calliope – MakeCode Extension (v0.1.22)
 
 A collection of child-friendly programming blocks for the **fischertechnik Calliope** construction kit, designed for **Calliope mini V3** in Microsoft MakeCode.
 
@@ -31,7 +31,7 @@ All product names and trademarks mentioned are used solely to describe compatibi
 
 The **Sensoren** group contains the regular numeric light-sensor block and one advanced calibration block: `Light level [..] threshold [..]`.
 
-> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.21 implementation are in German.
+> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.22 implementation are in German.
 
 ## Extension gallery icon
 
@@ -39,19 +39,25 @@ The repository includes `icon.png` (300 × 200 px, less than 100 KB) in the repo
 
 ## Toolbox organization and color
 
-The extension uses a high-contrast **deep blue** (`#1456B8`) and seven groups within the **fischertechnik** MakeCode category:
+The **fischertechnik** toolbox category remains deep blue (`#1456B8`) and keeps the same seven groups. Starting in v0.1.22, the individual blocks are colored by function group:
 
-| Group shown in MakeCode | Blocks |
-|---|---|
-| **Licht (LED)** | LED output |
-| **Motor** | Motor control, then separate motor stop command |
-| **Eingabe** | Push button |
-| **Sensoren** | Light-sensor condition, visible numerical brightness measurement, and advanced light-threshold calibration |
-| **Lichtschranke** | Start emitter LED (first), check light barrier (second) |
-| **Steuerung** | Wait block (seconds/minutes) |
-| **Logik** | Loop until a selected sensor condition is true or false |
+| Group shown in MakeCode | Color | Blocks |
+|---|---|---|
+| **Licht (LED)** | Gold `#B68400` | LED output |
+| **Motor** | Orange `#D56722` | Motor control, then separate motor stop command |
+| **Eingabe** | Magenta `#B83D88` | Push button |
+| **Sensoren** | Green `#24804C` | Light-sensor condition, numerical brightness measurement and advanced threshold calibration |
+| **Lichtschranke** | Teal green `#00876C` | Start emitter LED and light barrier check |
+| **Steuerung** | Violet `#6054AE` | Wait block |
+| **Logik** | Petrol `#087C93` | Until-loop |
 
-The light-threshold calibration block remains advanced. The numerical brightness block is now visible in the normal Sensors section. Group names and block labels remain in German for classroom use.
+The light-threshold calibration block remains advanced. The numerical brightness block is visible in the normal Sensors section. Group names and block labels remain in German for classroom use.
+
+### Experimental per-block coloring (v0.1.22)
+
+The PXT block loader uses a block function's own `color` attribute before falling back to its namespace color (unless an explicit `blockNamespace` overrides it). This version assigns a per-function `color="#RRGGBB"` annotation while retaining the existing block ID, function, group and namespace. The fischertechnik category itself remains blue `#1456B8`; the individual blocks should have the seven different colors within that single category.
+
+This is a visual-only test: no wiring, sensor logic, motor commands or generated TypeScript APIs are changed. The result still needs testing in the Calliope MakeCode editor because editor versions and caching may affect rendering.
 
 Dropdowns now use **lowercase German words**, such as `an`, `aus`, `wechseln`, `links`, `rechts`, `turbo`, `gedrückt`, and `nicht gedrückt`. Hardware identifiers such as `P0`, `P1`, `M1`, and `M2` remain unchanged. This is a display-only change; TypeScript enum identifiers and behavior are preserved.
 
