@@ -2,7 +2,7 @@
 >
 > This extension was developed with the assistance of AI ("vibe coding"). Its source code has not yet been fully verified in the MakeCode online compiler or tested on physical hardware. **Please review and test it before using it in lessons.**
 
-# fischertechnik Calliope – MakeCode Extension (v0.1.6)
+# fischertechnik Calliope – MakeCode Extension (v0.1.7)
 
 A collection of child-friendly programming blocks for the **fischertechnik Calliope** construction kit, designed for **Calliope mini V3** in Microsoft MakeCode.
 
@@ -14,7 +14,7 @@ This project is not officially affiliated with, endorsed by, or supported by fis
 
 All product names and trademarks mentioned are used solely to describe compatibility.
 
-## The five programming blocks
+## Programming blocks
 
 | Block | Type | Function |
 |---|---|---|
@@ -23,14 +23,15 @@ All product names and trademarks mentioned are used solely to describe compatibi
 | **Light sensor pin [P1/P2] detects at least [BRIGHT/MEDIUM/DIM]** | Boolean | Checks whether the analog reading meets the selected light threshold |
 | **Light barrier LED [P0] sensor [P2] is [BLOCKED/CLEAR] at [BRIGHT/MEDIUM/DIM]** | Boolean | Switches on the emitter LED and evaluates the phototransistor |
 | **Push button [P3] is [PRESSED/NOT PRESSED]** | Boolean | Reads a digital input with a pull-down resistor; the normally open switch connects 3 V to the pin when pressed |
+| **wait [1] [Seconds/Minutes]** | Command | Pauses the current program for 0–99 whole seconds or minutes |
 
 The **Sensors** group also contains two advanced calibration blocks: `Light level [..] threshold [..]` and `Light sensor pin [..] reading`.
 
-> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.6 implementation are in German.
+> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.7 implementation are in German.
 
 ## Toolbox organization and color
 
-The extension uses a high-contrast **deep blue** (`#1456B8`) and four groups within the **fischertechnik** MakeCode category:
+The extension uses a high-contrast **deep blue** (`#1456B8`) and five groups within the **fischertechnik** MakeCode category:
 
 | Group shown in MakeCode | Blocks |
 |---|---|
@@ -38,10 +39,20 @@ The extension uses a high-contrast **deep blue** (`#1456B8`) and four groups wit
 | **Motor** | Motor control |
 | **Eingabe** | Push button |
 | **Sensoren** | Light sensor, light barrier, light threshold calibration, and light-sensor reading |
+| **Steuerung** | Wait block (seconds/minutes) |
 
 The two calibration blocks are marked as advanced and may be shown separately under the editor's advanced view. Group names and block labels remain in German for classroom use.
 
 Dropdowns now use **lowercase German words**, such as `an`, `aus`, `wechseln`, `links`, `rechts`, `turbo`, `gedrückt`, and `nicht gedrückt`. Hardware identifiers such as `P0`, `P1`, `M1`, and `M2` remain unchanged. This is a display-only change; TypeScript enum identifiers and behavior are preserved.
+
+## Custom wait block
+
+The **Steuerung** group contains the block `warte [1] [Sekunden/Minuten]` (wait [1] [seconds/minutes]).
+
+- Type a whole number from **0 to 99** in the numeric field. The MakeCode input is configured with `min=0`, `max=99`, and default `1`.
+- Select **Sekunden** or **Minuten** from the dropdown.
+- Runtime code rounds and clamps the value to 0–99, even if a larger or fractional value is supplied from TypeScript or another connected block.
+- The block uses `basic.pause()` internally. This pauses the current sequence while MakeCode's scheduler can continue running other independent tasks.
 
 ## Pin selection: what is actually available?
 
@@ -59,7 +70,7 @@ For the analog fischertechnik phototransistor, **P1 and P2** are the practical c
 - **Push button:** Use the normally open contacts **1 and 3**, connected between **3 V and the selected signal pin**. The extension uses a pull-down resistor so an unpressed button reliably reads 0. Some guides show wiring against GND; that arrangement requires inverted logic and will not work with the current implementation without changes.
 - **Light barrier:** Use **different pins** for the emitter LED and phototransistor. The LED switches on when the light barrier is first evaluated and stays on. To turn it off later, use the LED block with `OFF` on the emitter pin.
 
-## Push-button reset troubleshooting (v0.1.6)
+## Push-button reset troubleshooting (v0.1.7)
 
 A Calliope mini V3 may reset if a connected switch creates an electrical short, or if there is a runtime issue in the input code. The exact cause of the reported reset has not yet been confirmed.
 
