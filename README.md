@@ -2,7 +2,7 @@
 >
 > This extension was developed with the assistance of AI ("vibe coding"). Its source code has not yet been fully verified in the MakeCode online compiler or tested on physical hardware. **Please review and test it before using it in lessons.**
 
-# fischertechnik Calliope – MakeCode Extension (v0.1.11)
+# fischertechnik Calliope – MakeCode Extension (v0.1.12)
 
 A collection of child-friendly programming blocks for the **fischertechnik Calliope** construction kit, designed for **Calliope mini V3** in Microsoft MakeCode.
 
@@ -27,7 +27,11 @@ All product names and trademarks mentioned are used solely to describe compatibi
 
 The **Sensors** group also contains two advanced calibration blocks: `Light level [..] threshold [..]` and `Light sensor pin [..] reading`.
 
-> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.11 implementation are in German.
+> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.12 implementation are in German.
+
+## Extension gallery icon
+
+The repository includes `icon.png` (300 × 200 px, less than 100 KB) in the repository root. It depicts a Calliope mini connected to fischertechnik-style motor, LED and switch modules on a bright yellow background. The image is intended for the MakeCode extension gallery. According to MakeCode documentation, custom gallery icons appear for **approved extensions**; merely adding the file does not constitute gallery approval.
 
 ## Toolbox organization and color
 
@@ -98,14 +102,14 @@ A third option in the `Taster` dropdown is **`angetippt`** (tapped). It is true 
 - Each completed tap returns true **once** when the `angetippt` state is checked; then the event is consumed.
 - `gedrückt` and `nicht gedrückt` remain unchanged.
 - Each of P0–P3 has independent tracking without dynamically allocated arrays.
-- **Update in v0.1.11:** Monitoring is performed by a single background task that samples initialized pins approximately every 10 ms, independently of when the `Taster` block is evaluated. Taps can therefore be captured during `warte` or other yielding MakeCode pauses. The completed tap is retained until the next `Taster ... ist angetippt` evaluation, which consumes it. The background monitor starts when the `Taster` block is called for the first time. Very brief pulses shorter than the sampling interval can still be missed.
+- **Update in v0.1.12:** Monitoring is performed by a single background task that samples initialized pins approximately every 10 ms, independently of when the `Taster` block is evaluated. Taps can therefore be captured during `warte` or other yielding MakeCode pauses. The completed tap is retained until the next `Taster ... ist angetippt` evaluation, which consumes it. The background monitor starts when the `Taster` block is called for the first time. Very brief pulses shorter than the sampling interval can still be missed.
 - Use the existing wiring: **selected pin → normally open switch → GND**, with the internal pull-up.
 
 This feature still requires a real-hardware Calliope mini V3 test.
 
-### Background tap monitor (v0.1.11)
+### Background tap monitor (v0.1.12)
 
-The previous implementation recognized a tap only when a repeated block call happened to observe both the press and the release. If an `ansonsten` branch contained a multi-second pause, the release was never observed and `angetippt` did not trigger. In v0.1.11 a single background fiber tracks transitions and buffers one event per pin, without creating a new fiber for every call.
+The previous implementation recognized a tap only when a repeated block call happened to observe both the press and the release. If an `ansonsten` branch contained a multi-second pause, the release was never observed and `angetippt` did not trigger. In v0.1.12 a single background fiber tracks transitions and buffers one event per pin, without creating a new fiber for every call.
 
 **Suggested test:** Use the `Taster P3 ist angetippt` block in a `dauerhaft` loop, with the Taster connected between P3 and GND. In the otherwise branch, include a 2-second built-in MakeCode pause. Tap P3 briefly during that pause. After the pause, the buffered tap should be reported once. The feature must still be tested on physical Calliope mini V3 hardware.
 
