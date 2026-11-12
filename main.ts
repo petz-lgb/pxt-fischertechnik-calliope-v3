@@ -1,8 +1,8 @@
 /**
  * fischertechnik Calliope - kindgerechte Blöcke für externe Bauteile.
  * Zielplattform: Microsoft MakeCode für Calliope mini (vor allem V3).
- * Die beiden analogen Sensoreingänge P1 und P2 sind bewusst eingeschränkt:
- * weitere Kontakte sind auf V3 entweder nicht analogfähig oder belegt.
+ * Analoge Sensorwerte liefern am V3 P0, P1 und P2.
+ * P3 wird fuer die Sensorabfrage alternativ digital ausgewertet.
  */
 
 //% color="#1456B8" icon="\uf085" block="fischertechnik" weight=85
@@ -32,12 +32,16 @@ namespace fischertechnik {
         P3 = 3
     }
 
-    /** Auf dem Calliope V3 frei zugängliche analoge Sensoranschlüsse. */
+    /** Vier Ringpins: P0-P2 analog; P3 nur digital fuer Sensoren. */
     export enum SensorAnschluss {
+        //% block="P0"
+        P0 = 0,
         //% block="P1"
         P1 = 1,
         //% block="P2"
-        P2 = 2
+        P2 = 2,
+        //% block="P3 (digital)"
+        P3 = 3
     }
 
     export enum LEDZustand {
@@ -124,7 +128,11 @@ namespace fischertechnik {
         //% block="Taster P2 angetippt"
         AngetipptP2 = 8,
         //% block="Taster P3 angetippt"
-        AngetipptP3 = 9
+        AngetipptP3 = 9,
+        //% block="Lichtschranke P0 unterbrochen"
+        LichtschrankeP0 = 10,
+        //% block="Lichtschranke P3 (digital) unterbrochen"
+        LichtschrankeP3 = 11
     }
 
     export enum BisWahrheitswert {
@@ -161,11 +169,16 @@ namespace fischertechnik {
     let grenzeSchwach = 40
 
     function analogPin(port: SensorAnschluss): AnalogPin {
-        return port === SensorAnschluss.P1 ? AnalogPin.P1 : AnalogPin.P2
+        if (port === SensorAnschluss.P0) return AnalogPin.P0
+        if (port === SensorAnschluss.P1) return AnalogPin.P1
+        return AnalogPin.P2
     }
 
     function sensorDigitalPin(port: SensorAnschluss): DigitalPin {
-        return port === SensorAnschluss.P1 ? DigitalPin.P1 : DigitalPin.P2
+        if (port === SensorAnschluss.P0) return DigitalPin.P0
+        if (port === SensorAnschluss.P1) return DigitalPin.P1
+        if (port === SensorAnschluss.P2) return DigitalPin.P2
+        return DigitalPin.P3
     }
 
     function grenze(stufe: Helligkeit): number {
@@ -178,6 +191,11 @@ namespace fischertechnik {
         // Die fischertechnik-Beschaltung mit Fototransistor nach GND
         // nutzt den internen Pull-up als definierten Gegenwiderstand.
         pins.setPull(sensorDigitalPin(port), PinPullMode.PullUp)
+        if (port === SensorAnschluss.P3) {
+            // P3 hat keinen ADC-Eingang am Calliope V3: daher nur 0/1023.
+            // 0=hell (LOW), 1023=dunkel (HIGH) bei dieser Beschaltung.
+            return pins.digitalReadPin(DigitalPin.P3) === 0 ? 0 : 1023
+        }
         return pins.analogReadPin(analogPin(port))
     }
 
@@ -419,8 +437,10 @@ namespace fischertechnik {
         if (bedingung === BisBedingung.TasterP1) return taster(Anschluss.P1, TasterZustand.Gedrueckt)
         if (bedingung === BisBedingung.TasterP2) return taster(Anschluss.P2, TasterZustand.Gedrueckt)
         if (bedingung === BisBedingung.TasterP3) return taster(Anschluss.P3, TasterZustand.Gedrueckt)
+        if (bedingung === BisBedingung.LichtschrankeP0) return lichtschrankePruefen(SensorAnschluss.P0, LichtschrankenZustand.Unterbrochen)
         if (bedingung === BisBedingung.LichtschrankeP1) return lichtschrankePruefen(SensorAnschluss.P1, LichtschrankenZustand.Unterbrochen)
         if (bedingung === BisBedingung.LichtschrankeP2) return lichtschrankePruefen(SensorAnschluss.P2, LichtschrankenZustand.Unterbrochen)
+        if (bedingung === BisBedingung.LichtschrankeP3) return lichtschrankePruefen(SensorAnschluss.P3, LichtschrankenZustand.Unterbrochen)
         if (bedingung === BisBedingung.AngetipptP0) return taster(Anschluss.P0, TasterZustand.Angetippt)
         if (bedingung === BisBedingung.AngetipptP1) return taster(Anschluss.P1, TasterZustand.Angetippt)
         if (bedingung === BisBedingung.AngetipptP2) return taster(Anschluss.P2, TasterZustand.Angetippt)
