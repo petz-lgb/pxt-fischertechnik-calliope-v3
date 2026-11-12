@@ -2,7 +2,7 @@
 >
 > This extension was developed with the assistance of AI ("vibe coding"). Its source code has not yet been fully verified in the MakeCode online compiler or tested on physical hardware. **Please review and test it before using it in lessons.**
 
-# fischertechnik Calliope – MakeCode Extension (v0.1.9)
+# fischertechnik Calliope – MakeCode Extension (v0.1.10)
 
 A collection of child-friendly programming blocks for the **fischertechnik Calliope** construction kit, designed for **Calliope mini V3** in Microsoft MakeCode.
 
@@ -22,12 +22,12 @@ All product names and trademarks mentioned are used solely to describe compatibi
 | **Motor [M1/M2] turns [↶ LEFT/↷ RIGHT] at [TURBO/FAST/MEDIUM/SLOW/STOP]** | Command | Controls the Calliope motor drivers at 100/75/50/25/0%; block M1 corresponds to physical M0, block M2 to physical M1 |
 | **Light sensor pin [P1/P2] detects at least [BRIGHT/MEDIUM/DIM]** | Boolean | Checks whether the analog reading meets the selected light threshold |
 | **Light barrier LED [P0] sensor [P2] is [BLOCKED/CLEAR] at [BRIGHT/MEDIUM/DIM]** | Boolean | Switches on the emitter LED and evaluates the phototransistor |
-| **Push button [P3] is [PRESSED/NOT PRESSED]** | Boolean | Reads a digital input with an internal pull-up; the normally open switch connects GND to the pin when pressed |
+| **Push button [P3] is [PRESSED/NOT PRESSED/TAPPED]** | Boolean | Reads a digital input with an internal pull-up; a 30–1000 ms press followed by release is reported once as TAPPED |
 | **wait [1] [Seconds/Minutes]** | Command | Pauses the current program for 0–99 whole seconds or minutes |
 
 The **Sensors** group also contains two advanced calibration blocks: `Light level [..] threshold [..]` and `Light sensor pin [..] reading`.
 
-> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.9 implementation are in German.
+> **Note:** The English names in this table describe the functionality. The block labels in the current v0.1.10 implementation are in German.
 
 ## Toolbox organization and color
 
@@ -91,7 +91,19 @@ For a safe diagnosis, **disconnect all external wiring first** and test the new 
 
 The normal MakeCode calls `pins.setPull()` and `pins.digitalReadPin()` are documented by Calliope, but this patch still requires verification on physical V3 hardware.
 
-## Push-button update (v0.1.9): active-low with internal pull-up
+## Push-button tap detection (v0.1.10)
+
+A third option in the `Taster` dropdown is **`angetippt`** (tapped). It is true only after a button press of **30–1000 ms**, followed by release; a long hold is not considered a tap.
+
+- Each completed tap returns true **once** when the `angetippt` state is checked; then the event is consumed.
+- `gedrückt` and `nicht gedrückt` remain unchanged.
+- Each of P0–P3 has independent tracking without dynamically allocated arrays.
+- **Important:** Detection is polling-based. The `Taster` block must be evaluated repeatedly to observe both pressing and releasing, for example inside `dauerhaft` with no long delays. A tap that starts and ends entirely during a `warte` block cannot be seen.
+- Use the existing wiring: **selected pin → normally open switch → GND**, with the internal pull-up.
+
+This feature still requires a real-hardware Calliope mini V3 test.
+
+## Push-button update (v0.1.8): active-low with internal pull-up
 
 The button block now follows the simple two-wire connection **P0/P1/P2/P3 → normally open switch (contacts 1 and 3) → GND**. The pull-up keeps the unconnected pin at a stable logical `1`; pressing the switch pulls it to `0`.
 
