@@ -6,7 +6,7 @@
  */
 
 //% color="#1456B8" icon="\uf085" block="fischertechnik" weight=85
-//% groups=['Licht (LED)', 'Motor', 'Eingabe', 'Sensoren', 'Steuerung']
+//% groups=['Licht (LED)', 'Motor', 'Eingabe', 'Sensoren', 'Lichtschranke', 'Steuerung']
 namespace fischertechnik {
     /** Vier frei nutzbare digitale Ringkontakte P0 bis P3. */
     export enum Anschluss {
@@ -216,23 +216,38 @@ namespace fischertechnik {
     //% blockId=ftcalliope_lichtschranke_starten
     //% block="Lichtschranke starten, LED auf $ledPin"
     //% ledPin.defl=fischertechnik.LEDAnschluss.P0
-    //% weight=75 group="Sensoren"
+    //% weight=100 group="Lichtschranke"
     export function lichtschrankeStarten(ledPin: LEDAnschluss): void {
         ledSchalten(ledPin, LEDZustand.An)
     }
 
     /**
-     * Schaltet die Sender-LED ein und meldet, ob der Lichtstrahl unterbrochen ist.
-     * Die Sender-LED bleibt nach Aufruf eingeschaltet.
+     * Einfache Lichtschranken-Abfrage ohne Schwellenwert-Dropdown.
+     * Die Sende-LED wird vorher mit "Lichtschranke starten" eingeschaltet.
+     * Der feste Grenzwert 22 ist ein Ausgangswert fuer den Fototransistor.
+     */
+    //% blockId=ftcalliope_lichtschranke_pruefen
+    //% block="Lichtschranke Sensor $sensorPin ist $zustand"
+    //% sensorPin.defl=fischertechnik.SensorAnschluss.P2
+    //% inlineInputMode=inline
+    //% weight=90 group="Lichtschranke"
+    export function lichtschrankePruefen(sensorPin: SensorAnschluss, zustand: LichtschrankenZustand): boolean {
+        let unterbrochen = lichtWert(sensorPin) > 22
+        return zustand === LichtschrankenZustand.Unterbrochen ? unterbrochen : !unterbrochen
+    }
+
+    /**
+     * Veraltete Lichtschranken-Abfrage fuer bestehende MakeCode-Projekte.
+     * Im neuen Block werden Sender und Empfaenger getrennt konfiguriert.
      */
     //% blockId=ftcalliope_lichtschranke
     //% block="Lichtschranke LED $ledPin Sensor $sensorPin ist $zustand bei $stufe"
     //% ledPin.defl=fischertechnik.LEDAnschluss.P0
     //% sensorPin.defl=fischertechnik.SensorAnschluss.P2
-    //% weight=70 group="Sensoren"
+    //% deprecated=true
+    //% weight=70 group="Lichtschranke"
     export function lichtschranke(ledPin: LEDAnschluss, sensorPin: SensorAnschluss, zustand: LichtschrankenZustand, stufe: Helligkeit): boolean {
         if ((ledPin as number) === (sensorPin as number)) return false
-        // Nur beim erstmaligen Einschalten kurze Einschwingzeit.
         if ((ledZustaende & (1 << (ledPin as number))) === 0) {
             ledSchalten(ledPin, LEDZustand.An)
             basic.pause(30)
