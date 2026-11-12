@@ -224,7 +224,7 @@ namespace fischertechnik {
     /**
      * Einfache Lichtschranken-Abfrage ohne Schwellenwert-Dropdown.
      * Die Sende-LED wird vorher mit "Lichtschranke starten" eingeschaltet.
-     * Der feste Grenzwert 22 ist ein Ausgangswert fuer den Fototransistor.
+     * Der feste Grenzwert fuer diese Lichtschranke ist 25.
      */
     //% blockId=ftcalliope_lichtschranke_pruefen
     //% block="Lichtschranke Sensor $sensorPin ist $zustand"
@@ -232,7 +232,7 @@ namespace fischertechnik {
     //% inlineInputMode=inline
     //% weight=90 group="Lichtschranke"
     export function lichtschrankePruefen(sensorPin: SensorAnschluss, zustand: LichtschrankenZustand): boolean {
-        let unterbrochen = lichtWert(sensorPin) > 22
+        let unterbrochen = lichtWert(sensorPin) > 25
         return zustand === LichtschrankenZustand.Unterbrochen ? unterbrochen : !unterbrochen
     }
 
