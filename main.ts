@@ -8,7 +8,7 @@
 //% color="#137C85" icon="\uf085" block="fischertechnik" weight=85
 //% groups=['Aktoren', 'Sensoren', 'Einstellungen']
 namespace fischertechnik {
-    /** Frei nutzbare digitale GPIO: vier Ringpins und zwei Pins auf der Stiftleiste. */
+    /** Vier frei nutzbare digitale Ringkontakte P0 bis P3. */
     export enum Anschluss {
         //% block="P0"
         P0 = 0,
@@ -17,11 +17,7 @@ namespace fischertechnik {
         //% block="P2"
         P2 = 2,
         //% block="P3"
-        P3 = 3,
-        //% block="C8 (Stiftleiste)"
-        C8 = 4,
-        //% block="C9 (Stiftleiste)"
-        C9 = 5
+        P3 = 3
     }
 
     /** LED-Ausgänge an den vier großen programmierbaren Ringkontakten. */
@@ -120,8 +116,7 @@ namespace fischertechnik {
             case Anschluss.P1: return DigitalPin.P1
             case Anschluss.P2: return DigitalPin.P2
             case Anschluss.P3: return DigitalPin.P3
-            case Anschluss.C8: return DigitalPin.C8
-            default: return DigitalPin.C9
+            default: return DigitalPin.P0
         }
     }
 
@@ -222,7 +217,7 @@ namespace fischertechnik {
      * Ein interner Pull-down hält den geöffneten Eingang auf 0.
      */
     //% blockId=ftcalliope_taster
-    //% block="Taster Pin $pin ist $zustand"
+    //% block="Taster $pin ist $zustand"
     //% pin.defl=fischertechnik.Anschluss.P3
     //% weight=60 group="Sensoren"
     export function taster(pin: Anschluss, zustand: TasterZustand): boolean {
