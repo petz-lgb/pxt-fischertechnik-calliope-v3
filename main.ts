@@ -91,7 +91,9 @@ namespace fischertechnik {
         //% block="gedrückt"
         Gedrueckt = 1,
         //% block="nicht gedrückt"
-        NichtGedrueckt = 0
+        NichtGedrueckt = 0,
+        //% block="angetippt"
+        Angetippt = 2
     }
 
     export enum LichtschrankenZustand {
@@ -113,6 +115,13 @@ namespace fischertechnik {
     let ledZustaende = 0
     // Externe Taster nur beim ersten Lesen des jeweiligen Pins konfigurieren.
     let tasterInitialisiert = 0
+    // Zusaetzliche Zustandsbits fuer das einmalige Antipp-Ereignis.
+    let tasterVorherGedrueckt = 0
+    let tasterAntippEreignisse = 0
+    let tasterStartP0 = 0
+    let tasterStartP1 = 0
+    let tasterStartP2 = 0
+    let tasterStartP3 = 0
     // Vorläufige Werte für fischertechnik-Fototransistor, vom Modell abhängig.
     // Übliche Beschaltung des Sets: hell = kleiner Rohwert, dunkel = größer.
     let grenzeStark = 12
@@ -250,6 +259,37 @@ namespace fischertechnik {
         else if (pin === Anschluss.P3) pegel = pins.digitalReadPin(DigitalPin.P3)
         // Schliesser nach GND: 0 = gedrueckt, 1 = nicht gedrueckt.
         let gedrueckt = pegel === 0
+        let warGedrueckt = (tasterVorherGedrueckt & maske) !== 0
+
+        if (gedrueckt && !warGedrueckt) {
+            // Beginn des Tastendrucks merken.
+            tasterVorherGedrueckt |= maske
+            let start = input.runningTime()
+            if (pin === Anschluss.P0) tasterStartP0 = start
+            else if (pin === Anschluss.P1) tasterStartP1 = start
+            else if (pin === Anschluss.P2) tasterStartP2 = start
+            else if (pin === Anschluss.P3) tasterStartP3 = start
+        } else if (!gedrueckt && warGedrueckt) {
+            // Erst nach dem Loslassen ein Antipp-Ereignis erzeugen.
+            tasterVorherGedrueckt &= ~maske
+            let start = 0
+            if (pin === Anschluss.P0) start = tasterStartP0
+            else if (pin === Anschluss.P1) start = tasterStartP1
+            else if (pin === Anschluss.P2) start = tasterStartP2
+            else if (pin === Anschluss.P3) start = tasterStartP3
+            let dauer = input.runningTime() - start
+            // Kurze Kontaktpreller vermeiden, laenge bis eine Sekunde.
+            if (dauer >= 30 && dauer <= 1000) {
+                tasterAntippEreignisse |= maske
+            }
+        }
+
+        if (zustand === TasterZustand.Angetippt) {
+            // Einmalig melden und danach zuruecksetzen.
+            let erkannt = (tasterAntippEreignisse & maske) !== 0
+            if (erkannt) tasterAntippEreignisse &= ~maske
+            return erkannt
+        }
         return zustand === TasterZustand.Gedrueckt ? gedrueckt : !gedrueckt
     }
 
