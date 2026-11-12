@@ -103,21 +103,13 @@ namespace fischertechnik {
 
     // Zustand von P0 bis P3 als einfache Bitmaske statt Array.
     let ledZustaende = 0
+    // Externe Taster nur beim ersten Lesen des jeweiligen Pins konfigurieren.
+    let tasterInitialisiert = 0
     // Vorläufige Werte für fischertechnik-Fototransistor, vom Modell abhängig.
     // Übliche Beschaltung des Sets: hell = kleiner Rohwert, dunkel = größer.
     let grenzeStark = 12
     let grenzeMittel = 22
     let grenzeSchwach = 40
-
-    function digitalPin(port: Anschluss): DigitalPin {
-        switch (port) {
-            case Anschluss.P0: return DigitalPin.P0
-            case Anschluss.P1: return DigitalPin.P1
-            case Anschluss.P2: return DigitalPin.P2
-            case Anschluss.P3: return DigitalPin.P3
-            default: return DigitalPin.P0
-        }
-    }
 
     function analogPin(port: SensorAnschluss): AnalogPin {
         return port === SensorAnschluss.P1 ? AnalogPin.P1 : AnalogPin.P2
@@ -229,9 +221,25 @@ namespace fischertechnik {
     //% pin.defl=fischertechnik.Anschluss.P3
     //% weight=60 group="Eingabe"
     export function taster(pin: Anschluss, zustand: TasterZustand): boolean {
-        let gpio = digitalPin(pin)
-        pins.setPull(gpio, PinPullMode.PullDown)
-        let gedrueckt = pins.digitalReadPin(gpio) === 1
+        // Der V3 soll nicht in jeder Schleifenrunde neu konfiguriert werden.
+        // Wie bei der bewaehrten LED-Routine erfolgt die Pinwahl explizit.
+        let index = pin as number
+        if (index < 0 || index > 3) return false
+        let maske = 1 << index
+        if ((tasterInitialisiert & maske) === 0) {
+            if (pin === Anschluss.P0) pins.setPull(DigitalPin.P0, PinPullMode.PullDown)
+            else if (pin === Anschluss.P1) pins.setPull(DigitalPin.P1, PinPullMode.PullDown)
+            else if (pin === Anschluss.P2) pins.setPull(DigitalPin.P2, PinPullMode.PullDown)
+            else if (pin === Anschluss.P3) pins.setPull(DigitalPin.P3, PinPullMode.PullDown)
+            tasterInitialisiert |= maske
+        }
+
+        let pegel = 0
+        if (pin === Anschluss.P0) pegel = pins.digitalReadPin(DigitalPin.P0)
+        else if (pin === Anschluss.P1) pegel = pins.digitalReadPin(DigitalPin.P1)
+        else if (pin === Anschluss.P2) pegel = pins.digitalReadPin(DigitalPin.P2)
+        else if (pin === Anschluss.P3) pegel = pins.digitalReadPin(DigitalPin.P3)
+        let gedrueckt = pegel === 1
         return zustand === TasterZustand.Gedrueckt ? gedrueckt : !gedrueckt
     }
 
